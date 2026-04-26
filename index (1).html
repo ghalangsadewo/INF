@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard SLA Pengiriman — April 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #151820;
+    --surface2: #1c2030;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8eaf0;
+    --text2: #8b90a0;
+    --text3: #555a6a;
+    --accent: #4f8ef7;
+    --accent2: #34c98e;
+    --warn: #f5a623;
+    --danger: #e85c5c;
+    --purple: #9b7fe8;
+    --pink: #e87fa0;
+    --amber: #e8a34f;
+    --green: #6ec97e;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    background: rgba(13,15,20,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100%{opacity:1;transform:scale(1);}
+    50%{opacity:0.5;transform:scale(1.3);}
+  }
+  .brand-name {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  .header-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.04em;
+  }
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--accent2);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: rgba(52,201,142,0.08);
+    border: 1px solid rgba(52,201,142,0.2);
+    border-radius: 20px;
+    padding: 3px 10px;
+  }
+  .live-dot {
+    width: 5px; height: 5px;
+    background: var(--accent2);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  /* Layout */
+  .main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+  /* Page title */
+  .page-header { margin-bottom: 2rem; }
+  .page-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .page-title span { color: var(--accent); }
+  .page-desc { font-size: 13px; color: var(--text2); }
+
+  /* Metric cards */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+  .metric-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: 2px 2px 0 0;
+  }
+  .metric-card.blue::before { background: var(--accent); }
+  .metric-card.green::before { background: var(--accent2); }
+  .metric-card.purple::before { background: var(--purple); }
+  .metric-card.amber::before { background: var(--amber); }
+  .metric-card.danger::before { background: var(--danger); }
+  .metric-card.pink::before { background: var(--pink); }
+  .metric-card:hover { border-color: var(--border2); }
+  .metric-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+  .metric-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .metric-sub { font-size: 11px; color: var(--text3); }
+
+  /* Badge */
+  .badge {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .badge-ok { background: rgba(52,201,142,0.1); color: var(--accent2); border: 1px solid rgba(52,201,142,0.25); }
+  .badge-warn { background: rgba(245,166,35,0.1); color: var(--warn); border: 1px solid rgba(245,166,35,0.25); }
+  .badge-bad { background: rgba(232,92,92,0.1); color: var(--danger); border: 1px solid rgba(232,92,92,0.25); }
+
+  /* Chart card */
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .chart-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text2);
+  }
+  .legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text2);
+    font-family: 'DM Mono', monospace;
+  }
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text2);
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+    letter-spacing: 0.03em;
+    transition: all 0.15s;
+  }
+  .tab-btn:hover { border-color: var(--border2); color: var(--text); }
+  .tab-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* Two-column layout */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* Table */
+  .table-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+  }
+  .table-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text3);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    background: var(--surface2);
+  }
+  tbody td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    white-space: nowrap;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 11px;
+    color: var(--text3);
+    font-family: 'DM Mono', monospace;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+    letter-spacing: 0.04em;
+  }
+
+  /* Upload zone */
+  .upload-zone {
+    border: 1.5px dashed var(--border2);
+    border-radius: var(--radius);
+    padding: 1.5rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+    transition: border-color 0.2s, background 0.2s;
+    background: rgba(79,142,247,0.02);
+  }
+  .upload-zone:hover {
+    border-color: var(--accent);
+    background: rgba(79,142,247,0.05);
+  }
+  .upload-zone p { font-size: 13px; color: var(--text2); margin-bottom: 4px; }
+  .upload-zone small { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
+  #csv-file { display: none; }
+
+  .info-bar {
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    margin-bottom: 1.25rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+  .info-bar.default { background: rgba(79,142,247,0.08); color: #6ba3ff; border: 1px solid rgba(79,142,247,0.2); }
+  .info-bar.success { background: rgba(52,201,142,0.08); color: var(--accent2); border: 1px solid rgba(52,201,142,0.2); }
+  .info-bar.error { background: rgba(232,92,92,0.08); color: var(--danger); border: 1px solid rgba(232,92,92,0.2); }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-brand">
+    <div class="brand-dot"></div>
+    <span class="brand-name">SLA Monitor</span>
+  </div>
+  <div class="header-meta">APRIL 2026 · GRW & CUSTOMER</div>
+  <div class="live-badge"><div class="live-dot"></div>Live</div>
+</header>
+
+<main class="main">
+  <div class="page-header">
+    <h1 class="page-title">Dashboard <span>SLA Pengiriman</span></h1>
+    <p class="page-desc">Monitoring harian pencapaian SLA · INFORMA · INFORMA ELEKTRONIK · SELMA</p>
+  </div>
+
+  <div class="upload-zone" onclick="document.getElementById('csv-file').click()">
+    <p>Upload CSV baru untuk memperbarui data</p>
+    <small>Format: Periode, GRW, Customer — atau sesuai format spreadsheet asli</small>
+  </div>
+  <input type="file" id="csv-file" accept=".csv" onchange="handleCSV(event)">
+  <div class="info-bar default" id="infoBar">Menampilkan data aktual April 2026. Upload CSV untuk memperbarui.</div>
+
+  <div class="metrics-grid" id="metricsGrid"></div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="setView('semua',this)">Semua</button>
+    <button class="tab-btn" onclick="setView('INFORMA',this)">INFORMA</button>
+    <button class="tab-btn" onclick="setView('INFORMA ELEKTRONIK',this)">INFO. ELEKTRONIK</button>
+    <button class="tab-btn" onclick="setView('SELMA',this)">SELMA</button>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-title" id="mainChartTitle">Tren SLA Harian — Semua Kategori</span>
+      <div class="legend" id="mainLegend"></div>
+    </div>
+    <div style="position:relative;width:100%;height:300px;">
+      <canvas id="mainChart"></canvas>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">Volume Pengiriman Harian</span>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#4f8ef7"></div>GRW</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#34c98e"></div>Customer</div>
+        </div>
+      </div>
+      <div style="position:relative;width:100%;height:240px;">
+        <canvas id="volChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">Total Delay per Hari</span>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#e85c5c"></div>GRW Delay</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#e8a34f"></div>Customer Delay</div>
+        </div>
+      </div>
+      <div style="position:relative;width:100%;height:240px;">
+        <canvas id="delayChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <span class="chart-title">Detail Pencapaian SLA Harian</span>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <span class="badge badge-ok">≥99% Tercapai</span>
+        <span class="badge badge-warn">95–98% Cukup</span>
+        <span class="badge badge-bad">&lt;95% Perlu Tindakan</span>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>GRW INFORMA</th>
+            <th>GRW INFO.ELEK</th>
+            <th>GRW SELMA</th>
+            <th>Avg GRW</th>
+            <th>CUST INFORMA</th>
+            <th>CUST INFO.ELEK</th>
+            <th>CUST SELMA</th>
+            <th>Avg Customer</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  SLA MONITORING DASHBOARD · DATA APRIL 2026 · AUTO-GENERATED
+</footer>
+
+<script>
+const DATA = [
+  {tgl:'01/04',gi_g:99.75,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:923,g_dl:2,c_on:552,c_dl:0},
+  {tgl:'02/04',gi_g:99.30,ge_g:100,s_g:100,gi_c:99.75,ge_c:100,s_c:100,g_on:305,g_dl:2,c_on:487,c_dl:1},
+  {tgl:'03/04',gi_g:99.67,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:366,g_dl:1,c_on:534,c_dl:0},
+  {tgl:'04/04',gi_g:99.63,ge_g:100,s_g:97.37,gi_c:100,ge_c:100,s_c:100,g_on:311,g_dl:2,c_on:564,c_dl:0},
+  {tgl:'05/04',gi_g:99.76,ge_g:100,s_g:98.51,gi_c:99.80,ge_c:100,s_c:100,g_on:569,g_dl:3,c_on:633,c_dl:1},
+  {tgl:'06/04',gi_g:99.62,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:337,g_dl:1,c_on:879,c_dl:0},
+  {tgl:'07/04',gi_g:99.56,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:286,g_dl:1,c_on:696,c_dl:0},
+  {tgl:'08/04',gi_g:99.90,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:1199,g_dl:1,c_on:610,c_dl:0},
+  {tgl:'09/04',gi_g:99.65,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:1270,g_dl:4,c_on:580,c_dl:0},
+  {tgl:'10/04',gi_g:99.59,ge_g:100,s_g:99.10,gi_c:100,ge_c:100,s_c:100,g_on:1365,g_dl:6,c_on:621,c_dl:0},
+  {tgl:'11/04',gi_g:99.85,ge_g:100,s_g:98.04,gi_c:99.73,ge_c:100,s_c:100,g_on:745,g_dl:2,c_on:433,c_dl:1},
+  {tgl:'12/04',gi_g:99.89,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:1007,g_dl:1,c_on:452,c_dl:0},
+  {tgl:'13/04',gi_g:100,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:684,g_dl:0,c_on:654,c_dl:0},
+  {tgl:'14/04',gi_g:100,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:97.65,g_on:781,g_dl:0,c_on:712,c_dl:2},
+  {tgl:'15/04',gi_g:100,ge_g:100,s_g:100,gi_c:99.78,ge_c:100,s_c:100,g_on:811,g_dl:0,c_on:557,c_dl:1},
+  {tgl:'16/04',gi_g:100,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:872,g_dl:0,c_on:541,c_dl:0},
+  {tgl:'17/04',gi_g:99.82,ge_g:100,s_g:100,gi_c:99.75,ge_c:94.44,s_c:100,g_on:600,g_dl:1,c_on:458,c_dl:2},
+  {tgl:'18/04',gi_g:100,ge_g:100,s_g:100,gi_c:99.76,ge_c:100,s_c:100,g_on:575,g_dl:0,c_on:485,c_dl:1},
+  {tgl:'19/04',gi_g:99.58,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:600,g_dl:2,c_on:442,c_dl:0},
+  {tgl:'20/04',gi_g:99.04,ge_g:100,s_g:98.95,gi_c:99.40,ge_c:100,s_c:100,g_on:424,g_dl:4,c_on:782,c_dl:4},
+  {tgl:'21/04',gi_g:99.59,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:262,g_dl:1,c_on:561,c_dl:0},
+  {tgl:'22/04',gi_g:99.49,ge_g:100,s_g:99.22,gi_c:100,ge_c:100,s_c:100,g_on:731,g_dl:4,c_on:516,c_dl:0},
+  {tgl:'23/04',gi_g:99.13,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:624,g_dl:4,c_on:420,c_dl:0},
+  {tgl:'24/04',gi_g:100,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:419,g_dl:0,c_on:449,c_dl:0},
+  {tgl:'25/04',gi_g:99.03,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:713,g_dl:6,c_on:512,c_dl:0},
+];
+
+function avg3(a,b,c){return (a+b+c)/3;}
+function pct(v){return v.toFixed(2)+'%';}
+function badge(v){
+  if(v>=99) return `<span class="badge badge-ok">${pct(v)}</span>`;
+  if(v>=95) return `<span class="badge badge-warn">${pct(v)}</span>`;
+  return `<span class="badge badge-bad">${pct(v)}</span>`;
+}
+
+function renderMetrics(data){
+  const ga = data.map(d=>avg3(d.gi_g,d.ge_g,d.s_g));
+  const ca = data.map(d=>avg3(d.gi_c,d.ge_c,d.s_c));
+  const gAvg = (ga.reduce((a,b)=>a+b,0)/ga.length).toFixed(2);
+  const cAvg = (ca.reduce((a,b)=>a+b,0)/ca.length).toFixed(2);
+  const gMin = Math.min(...ga).toFixed(2);
+  const cMin = Math.min(...ca).toFixed(2);
+  const totalOn = data.reduce((a,d)=>a+d.g_on+d.c_on,0);
+  const totalDl = data.reduce((a,d)=>a+d.g_dl+d.c_dl,0);
+  const overallPct = (totalOn/(totalOn+totalDl)*100).toFixed(2);
+  document.getElementById('metricsGrid').innerHTML = `
+    <div class="metric-card blue">
+      <div class="metric-label">Rata-rata SLA GRW</div>
+      <div class="metric-value">${gAvg}%</div>
+      <div class="metric-sub">${data.length} hari · semua kategori</div>
+    </div>
+    <div class="metric-card green">
+      <div class="metric-label">Rata-rata SLA Customer</div>
+      <div class="metric-value">${cAvg}%</div>
+      <div class="metric-sub">${data.length} hari · semua kategori</div>
+    </div>
+    <div class="metric-card purple">
+      <div class="metric-label">Overall SLA Rate</div>
+      <div class="metric-value">${overallPct}%</div>
+      <div class="metric-sub">GRW + Customer gabungan</div>
+    </div>
+    <div class="metric-card amber">
+      <div class="metric-label">SLA Terendah GRW</div>
+      <div class="metric-value">${gMin}%</div>
+      <div class="metric-sub">Titik terendah bulan ini</div>
+    </div>
+    <div class="metric-card pink">
+      <div class="metric-label">SLA Terendah Customer</div>
+      <div class="metric-value">${cMin}%</div>
+      <div class="metric-sub">Titik terendah bulan ini</div>
+    </div>
+    <div class="metric-card danger">
+      <div class="metric-label">Total Delay</div>
+      <div class="metric-value">${totalDl}</div>
+      <div class="metric-sub">dari ${(totalOn+totalDl).toLocaleString()} pengiriman</div>
+    </div>
+  `;
+}
+
+let mainChart, volChart, delayChart;
+
+const DATASETS_CONFIG = {
+  'INFORMA':          [{key:'gi_g',label:'GRW INFORMA',color:'#4f8ef7',dash:[]},{key:'gi_c',label:'Customer INFORMA',color:'#34c98e',dash:[5,3]}],
+  'INFORMA ELEKTRONIK':[{key:'ge_g',label:'GRW INFO.ELEK',color:'#9b7fe8',dash:[]},{key:'ge_c',label:'Customer INFO.ELEK',color:'#e87fa0',dash:[5,3]}],
+  'SELMA':            [{key:'s_g',label:'GRW SELMA',color:'#e8a34f',dash:[]},{key:'s_c',label:'Customer SELMA',color:'#6ec97e',dash:[5,3]}],
+};
+
+function buildMainDatasets(view, data){
+  if(view==='semua'){
+    return Object.values(DATASETS_CONFIG).flat().map(cfg=>({
+      label:cfg.label, data:data.map(d=>d[cfg.key]),
+      borderColor:cfg.color, backgroundColor:cfg.color.replace(')',',0.06)').replace('rgb','rgba'),
+      borderWidth:2, pointRadius:3, fill:true, tension:0.3, borderDash:cfg.dash
+    }));
+  }
+  return DATASETS_CONFIG[view].map(cfg=>({
+    label:cfg.label, data:data.map(d=>d[cfg.key]),
+    borderColor:cfg.color, backgroundColor:cfg.color+'18',
+    borderWidth:2.5, pointRadius:4, fill:true, tension:0.3, borderDash:cfg.dash
+  }));
+}
+
+function renderMainChart(view, data){
+  const ds = buildMainDatasets(view, data);
+  document.getElementById('mainChartTitle').textContent = `Tren SLA Harian — ${view==='semua'?'Semua Kategori':view}`;
+  document.getElementById('mainLegend').innerHTML = ds.map(d=>`
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${d.borderColor}"></div>${d.label}
+    </div>`).join('');
+  if(mainChart) mainChart.destroy();
+  mainChart = new Chart(document.getElementById('mainChart'),{
+    type:'line',
+    data:{labels:data.map(d=>d.tgl), datasets:ds},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}%`}}},
+      scales:{
+        y:{min:92, max:100.5, ticks:{callback:v=>v+'%', font:{size:10}, color:'#555a6a'}, grid:{color:'rgba(255,255,255,0.04)'}, border:{color:'rgba(255,255,255,0.05)'}},
+        x:{ticks:{font:{size:9}, maxRotation:45, autoSkip:false, color:'#555a6a'}, grid:{display:false}, border:{color:'rgba(255,255,255,0.05)'}}
+      }
+    }
+  });
+}
+
+function renderVolumeChart(data){
+  if(volChart) volChart.destroy();
+  volChart = new Chart(document.getElementById('volChart'),{
+    type:'bar',
+    data:{
+      labels:data.map(d=>d.tgl),
+      datasets:[
+        {label:'GRW',data:data.map(d=>d.g_on+d.g_dl),backgroundColor:'rgba(79,142,247,0.6)',stack:'s'},
+        {label:'Customer',data:data.map(d=>d.c_on+d.c_dl),backgroundColor:'rgba(52,201,142,0.6)',stack:'s'},
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{font:{size:8}, maxRotation:45, autoSkip:false, color:'#555a6a'}, grid:{display:false}, border:{color:'rgba(255,255,255,0.05)'}},
+        y:{ticks:{font:{size:9}, color:'#555a6a'}, grid:{color:'rgba(255,255,255,0.04)'}, border:{color:'rgba(255,255,255,0.05)'}}
+      }
+    }
+  });
+}
+
+function renderDelayChart(data){
+  if(delayChart) delayChart.destroy();
+  delayChart = new Chart(document.getElementById('delayChart'),{
+    type:'bar',
+    data:{
+      labels:data.map(d=>d.tgl),
+      datasets:[
+        {label:'GRW Delay',data:data.map(d=>d.g_dl),backgroundColor:'rgba(232,92,92,0.7)'},
+        {label:'Customer Delay',data:data.map(d=>d.c_dl),backgroundColor:'rgba(232,163,79,0.7)'},
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{font:{size:8}, maxRotation:45, autoSkip:false, color:'#555a6a'}, grid:{display:false}, border:{color:'rgba(255,255,255,0.05)'}},
+        y:{ticks:{font:{size:9}, stepSize:1, color:'#555a6a'}, grid:{color:'rgba(255,255,255,0.04)'}, border:{color:'rgba(255,255,255,0.05)'}}
+      }
+    }
+  });
+}
+
+function renderTable(data){
+  document.getElementById('tableBody').innerHTML = data.map(d=>{
+    const ga = avg3(d.gi_g,d.ge_g,d.s_g);
+    const ca = avg3(d.gi_c,d.ge_c,d.s_c);
+    return `<tr>
+      <td>${d.tgl}</td>
+      <td>${badge(d.gi_g)}</td>
+      <td>${badge(d.ge_g)}</td>
+      <td>${badge(d.s_g)}</td>
+      <td><strong>${pct(ga)}</strong></td>
+      <td>${badge(d.gi_c)}</td>
+      <td>${badge(d.ge_c)}</td>
+      <td>${badge(d.s_c)}</td>
+      <td><strong>${pct(ca)}</strong></td>
+    </tr>`;
+  }).join('');
+}
+
+let currentData = DATA;
+let currentView = 'semua';
+
+function setView(v, el){
+  currentView = v;
+  document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderMainChart(v, currentData);
+}
+
+function handleCSV(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const lines = ev.target.result.trim().split('\n');
+    const h = lines[0].split(',').map(x=>x.trim().toLowerCase());
+    const pi = h.findIndex(x=>x.includes('periode')||x.includes('bulan')||x.includes('tgl'));
+    const gi = h.findIndex(x=>x.includes('grw'));
+    const ci = h.findIndex(x=>x.includes('customer')||x.includes('cust'));
+    if(gi===-1||ci===-1){
+      setInfo('Kolom tidak ditemukan. Pastikan ada kolom GRW dan Customer.','error');
+      return;
+    }
+    const parsed = [];
+    for(let i=1;i<lines.length;i++){
+      const cols = lines[i].split(',').map(c=>c.trim().replace('%',''));
+      const gv = parseFloat(cols[gi]), cv = parseFloat(cols[ci]);
+      if(isNaN(gv)||isNaN(cv)) continue;
+      parsed.push({
+        tgl: pi>=0?cols[pi]:`Baris ${i}`,
+        gi_g:gv, ge_g:gv, s_g:gv,
+        gi_c:cv, ge_c:cv, s_c:cv,
+        g_on:100, g_dl:0, c_on:100, c_dl:0
+      });
+    }
+    if(parsed.length===0){setInfo('Tidak ada data valid.','error');return;}
+    currentData = parsed;
+    renderAll(parsed);
+    setInfo(`Data dimuat: ${parsed.length} baris dari "${file.name}"`, 'success');
+  };
+  reader.readAsText(file);
+}
+
+function setInfo(msg, type){
+  const el = document.getElementById('infoBar');
+  el.textContent = msg;
+  el.className = `info-bar ${type}`;
+}
+
+function renderAll(data){
+  renderMetrics(data);
+  renderMainChart(currentView, data);
+  renderVolumeChart(data);
+  renderDelayChart(data);
+  renderTable(data);
+}
+
+renderAll(DATA);
+</script>
+</body>
+</html>
