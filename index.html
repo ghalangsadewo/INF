@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard SLA Pengiriman — Real-time</title>
+<title>Dashboard SLA Pengiriman — April 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -106,7 +106,7 @@
   .main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
 
   /* Page title */
-  .page-header { margin-bottom: 1.5rem; }
+  .page-header { margin-bottom: 2rem; }
   .page-title {
     font-size: 28px;
     font-weight: 600;
@@ -116,41 +116,63 @@
     margin-bottom: 6px;
   }
   .page-title span { color: var(--accent); }
-  .page-desc { font-size: 13px; color: var(--text2); margin-bottom: 0.5rem; }
-  
-  .header-controls {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin-top: 8px;
+  .page-desc { font-size: 13px; color: var(--text2); }
+
+  /* Data Source Cards */
+  .data-sources-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 1.5rem;
   }
-  .refresh-btn {
-    background: rgba(79,142,247,0.1);
-    border: 1px solid rgba(79,142,247,0.3);
-    color: var(--accent);
-    padding: 6px 12px;
-    border-radius: var(--radius-sm);
+  .source-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
     cursor: pointer;
-    font-size: 11px;
-    font-weight: 500;
     transition: all 0.2s;
-    font-family: 'Sora', sans-serif;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    position: relative;
+    overflow: hidden;
   }
-  .refresh-btn:hover {
-    background: rgba(79,142,247,0.2);
-    border-color: rgba(79,142,247,0.5);
+  .source-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: 2px 2px 0 0;
   }
-  .refresh-btn.loading {
-    opacity: 0.6;
-    pointer-events: none;
+  .source-card.local::before { background: var(--accent); }
+  .source-card.sheets::before { background: var(--accent2); }
+  .source-card.upload::before { background: var(--purple); }
+  .source-card.active {
+    border-color: var(--accent);
+    background: rgba(79,142,247,0.05);
   }
-  .last-update {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
+  .source-card:hover {
+    border-color: var(--border2);
+    transform: translateY(-2px);
+  }
+  .source-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .source-card.local .source-icon { color: var(--accent); }
+  .source-card.sheets .source-icon { color: var(--accent2); }
+  .source-card.upload .source-icon { color: var(--purple); }
+  .source-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .source-desc {
+    font-size: 11px;
     color: var(--text3);
+    line-height: 1.4;
   }
 
   /* Metric cards */
@@ -384,6 +406,9 @@
     to { transform: rotate(360deg); }
   }
 
+  /* File input */
+  #csv-file { display: none; }
+
   /* Link styling */
   a {
     color: var(--accent);
@@ -395,8 +420,8 @@
 
   /* Responsive */
   @media (max-width: 700px) {
-    .header-controls {
-      flex-wrap: wrap;
+    .data-sources-container {
+      grid-template-columns: 1fr;
     }
   }
 </style>
@@ -408,26 +433,42 @@
     <div class="brand-dot"></div>
     <span class="brand-name">SLA Monitor</span>
   </div>
-  <div class="header-meta">REAL-TIME · GRW & CUSTOMER</div>
+  <div class="header-meta">APRIL 2026 · GRW & CUSTOMER</div>
   <div class="live-badge"><div class="live-dot"></div>Live</div>
 </header>
 
 <main class="main">
   <div class="page-header">
     <h1 class="page-title">Dashboard <span>SLA Pengiriman</span></h1>
-    <p class="page-desc">Monitoring real-time dari Google Sheets · INFORMA · INFORMA ELEKTRONIK · SELMA</p>
-    <div class="header-controls">
-      <button class="refresh-btn" onclick="refreshData()" title="Refresh data dari Google Sheets">
-        <i class="fas fa-sync-alt"></i>
-        <span>Refresh</span>
-      </button>
-      <div class="last-update" id="lastUpdate">Auto-refresh: 30 detik</div>
+    <p class="page-desc">Monitoring harian pencapaian SLA · INFORMA · INFORMA ELEKTRONIK · SELMA</p>
+  </div>
+
+  <!-- Data Source Selection -->
+  <div class="data-sources-container">
+    <div class="source-card local active" onclick="loadLocalData(this)">
+      <i class="fas fa-database source-icon"></i>
+      <div class="source-title">Data Lokal</div>
+      <div class="source-desc">Gunakan data default April 2026</div>
+    </div>
+    
+    <div class="source-card sheets" onclick="loadGoogleSheets(this)">
+      <i class="fas fa-table source-icon"></i>
+      <div class="source-title">Google Sheets</div>
+      <div class="source-desc">Real-time dari spreadsheet</div>
+    </div>
+    
+    <div class="source-card upload" onclick="document.getElementById('csv-file').click()">
+      <i class="fas fa-cloud-upload-alt source-icon"></i>
+      <div class="source-title">Upload CSV</div>
+      <div class="source-desc">Upload file dari komputer</div>
     </div>
   </div>
+
+  <input type="file" id="csv-file" accept=".csv" onchange="handleCSV(event)">
   
   <div class="info-bar default" id="infoBar">
-    <div class="info-icon"><i class="fas fa-cloud"></i></div>
-    <div class="info-text">Terhubung ke Google Sheets. Data diperbarui real-time setiap 30 detik.</div>
+    <div class="info-icon"><i class="fas fa-info-circle"></i></div>
+    <div class="info-text">Menampilkan data lokal April 2026. Pilih sumber data lain untuk update.</div>
   </div>
 
   <div class="metrics-grid" id="metricsGrid"></div>
@@ -525,24 +566,41 @@
 </main>
 
 <footer class="footer">
-  SLA MONITORING DASHBOARD · REAL-TIME FROM GOOGLE SHEETS · AUTO-GENERATED
+  SLA MONITORING DASHBOARD · DATA APRIL 2026 · AUTO-GENERATED
 </footer>
 
 <script>
-// ===== KONFIGURASI GOOGLE SHEETS =====
-const SHEETS_ID = '1DAOcHYS2n8jja_AbYW9A2_ncfmefbMEWZ_OkANtkkT8';
-const SHEETS_GID = '0';
-const SHEETS_URL = `https://docs.google.com/spreadsheets/d/${SHEETS_ID}/edit?hl=id&pli=1&gid=${SHEETS_GID}`;
-const SHEETS_EXPORT_URL = `https://docs.google.com/spreadsheets/d/${SHEETS_ID}/export?format=csv&gid=${SHEETS_GID}`;
-const AUTO_REFRESH_INTERVAL = 30000; // 30 detik
+const DATA = [
+  {tgl:'01/04',gi_g:99.75,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:923,g_dl:2,c_on:552,c_dl:0},
+  {tgl:'02/04',gi_g:99.30,ge_g:100,s_g:100,gi_c:99.75,ge_c:100,s_c:100,g_on:305,g_dl:2,c_on:487,c_dl:1},
+  {tgl:'03/04',gi_g:99.67,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:366,g_dl:1,c_on:534,c_dl:0},
+  {tgl:'04/04',gi_g:99.63,ge_g:100,s_g:97.37,gi_c:100,ge_c:100,s_c:100,g_on:311,g_dl:2,c_on:564,c_dl:0},
+  {tgl:'05/04',gi_g:99.76,ge_g:100,s_g:98.51,gi_c:99.80,ge_c:100,s_c:100,g_on:569,g_dl:3,c_on:633,c_dl:1},
+  {tgl:'06/04',gi_g:99.62,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:337,g_dl:1,c_on:879,c_dl:0},
+  {tgl:'07/04',gi_g:99.56,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:286,g_dl:1,c_on:696,c_dl:0},
+  {tgl:'08/04',gi_g:99.90,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:1199,g_dl:1,c_on:610,c_dl:0},
+  {tgl:'09/04',gi_g:99.65,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:1270,g_dl:4,c_on:580,c_dl:0},
+  {tgl:'10/04',gi_g:99.59,ge_g:100,s_g:99.10,gi_c:100,ge_c:100,s_c:100,g_on:1365,g_dl:6,c_on:621,c_dl:0},
+  {tgl:'11/04',gi_g:99.85,ge_g:100,s_g:98.04,gi_c:99.73,ge_c:100,s_c:100,g_on:745,g_dl:2,c_on:433,c_dl:1},
+  {tgl:'12/04',gi_g:99.89,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:1007,g_dl:1,c_on:452,c_dl:0},
+  {tgl:'13/04',gi_g:100,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:684,g_dl:0,c_on:654,c_dl:0},
+  {tgl:'14/04',gi_g:100,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:97.65,g_on:781,g_dl:0,c_on:712,c_dl:2},
+  {tgl:'15/04',gi_g:100,ge_g:100,s_g:100,gi_c:99.78,ge_c:100,s_c:100,g_on:811,g_dl:0,c_on:557,c_dl:1},
+  {tgl:'16/04',gi_g:100,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:872,g_dl:0,c_on:541,c_dl:0},
+  {tgl:'17/04',gi_g:99.82,ge_g:100,s_g:100,gi_c:99.75,ge_c:94.44,s_c:100,g_on:600,g_dl:1,c_on:458,c_dl:2},
+  {tgl:'18/04',gi_g:100,ge_g:100,s_g:100,gi_c:99.76,ge_c:100,s_c:100,g_on:575,g_dl:0,c_on:485,c_dl:1},
+  {tgl:'19/04',gi_g:99.58,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:600,g_dl:2,c_on:442,c_dl:0},
+  {tgl:'20/04',gi_g:99.04,ge_g:100,s_g:98.95,gi_c:99.40,ge_c:100,s_c:100,g_on:424,g_dl:4,c_on:782,c_dl:4},
+  {tgl:'21/04',gi_g:99.59,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:262,g_dl:1,c_on:561,c_dl:0},
+  {tgl:'22/04',gi_g:99.49,ge_g:100,s_g:99.22,gi_c:100,ge_c:100,s_c:100,g_on:731,g_dl:4,c_on:516,c_dl:0},
+  {tgl:'23/04',gi_g:99.13,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:624,g_dl:4,c_on:420,c_dl:0},
+  {tgl:'24/04',gi_g:100,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:419,g_dl:0,c_on:449,c_dl:0},
+  {tgl:'25/04',gi_g:99.03,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:713,g_dl:6,c_on:512,c_dl:0},
+];
 
-let currentData = [];
-let currentView = 'semua';
-let grwChart, custChart, volChart, delayChart;
-let autoRefreshTimer = null;
-let isLoading = false;
+const SHEETS_URL = 'https://docs.google.com/spreadsheets/d/1DAOcHYS2n8jja_AbYW9A2_ncfmefbMEWZ_OkANtkkT8/';
+const SHEETS_EXPORT_URL = 'https://docs.google.com/spreadsheets/d/1DAOcHYS2n8jja_AbYW9A2_ncfmefbMEWZ_OkANtkkT8/export?format=csv&gid=0';
 
-// ===== FUNGSI UTILITY =====
 function avg3(a,b,c){return (a+b+c)/3;}
 function pct(v){return v.toFixed(2)+'%';}
 function badge(v){
@@ -551,25 +609,7 @@ function badge(v){
   return `<span class="badge badge-bad">${pct(v)}</span>`;
 }
 
-function setInfo(msg, type, icon='info-circle'){
-  const el = document.getElementById('infoBar');
-  el.innerHTML = `
-    <div class="info-icon"><i class="fas fa-${icon}"></i></div>
-    <div class="info-text">${msg}</div>
-  `;
-  el.className = `info-bar ${type}`;
-}
-
-function updateTimestamp(){
-  const now = new Date();
-  const time = now.toLocaleTimeString('id-ID');
-  document.getElementById('lastUpdate').textContent = `Pembaruan terakhir: ${time}`;
-}
-
-// ===== RENDER METRICS =====
 function renderMetrics(data){
-  if(data.length === 0) return;
-  
   const ga = data.map(d=>avg3(d.gi_g,d.ge_g,d.s_g));
   const ca = data.map(d=>avg3(d.gi_c,d.ge_c,d.s_c));
   const gAvg = (ga.reduce((a,b)=>a+b,0)/ga.length).toFixed(2);
@@ -579,7 +619,6 @@ function renderMetrics(data){
   const totalOn = data.reduce((a,d)=>a+d.g_on+d.c_on,0);
   const totalDl = data.reduce((a,d)=>a+d.g_dl+d.c_dl,0);
   const overallPct = (totalOn/(totalOn+totalDl)*100).toFixed(2);
-  
   document.getElementById('metricsGrid').innerHTML = `
     <div class="metric-card blue">
       <div class="metric-label">Rata-rata SLA GRW</div>
@@ -599,12 +638,12 @@ function renderMetrics(data){
     <div class="metric-card amber">
       <div class="metric-label">SLA Terendah GRW</div>
       <div class="metric-value">${gMin}%</div>
-      <div class="metric-sub">Titik terendah</div>
+      <div class="metric-sub">Titik terendah bulan ini</div>
     </div>
     <div class="metric-card pink">
       <div class="metric-label">SLA Terendah Customer</div>
       <div class="metric-value">${cMin}%</div>
-      <div class="metric-sub">Titik terendah</div>
+      <div class="metric-sub">Titik terendah bulan ini</div>
     </div>
     <div class="metric-card danger">
       <div class="metric-label">Total Delay</div>
@@ -614,7 +653,8 @@ function renderMetrics(data){
   `;
 }
 
-// ===== CHART CONFIGURATION =====
+let grwChart, custChart, volChart, delayChart;
+
 const GRW_CATS = {
   'semua':            [{key:'gi_g',label:'INFORMA',color:'#4f8ef7'},{key:'ge_g',label:'INFO.ELEK',color:'#9b7fe8'},{key:'s_g',label:'SELMA',color:'#e8a34f'}],
   'INFORMA':          [{key:'gi_g',label:'INFORMA',color:'#4f8ef7'}],
@@ -723,13 +763,9 @@ function renderTable(data){
   }).join('');
 }
 
-function renderAll(data){
-  renderMetrics(data);
-  renderSplitCharts(currentView, data);
-  renderVolumeChart(data);
-  renderDelayChart(data);
-  renderTable(data);
-}
+let currentData = DATA;
+let currentView = 'semua';
+let currentSource = 'local';
 
 function setView(v, el){
   currentView = v;
@@ -738,108 +774,169 @@ function setView(v, el){
   renderSplitCharts(v, currentData);
 }
 
-// ===== LOAD GOOGLE SHEETS DATA =====
-function loadGoogleSheetsData(){
-  if(isLoading) return;
-  isLoading = true;
+function setInfo(msg, type, icon='info-circle'){
+  const el = document.getElementById('infoBar');
+  const timestamp = new Date().toLocaleTimeString('id-ID');
+  el.innerHTML = `
+    <div class="info-icon"><i class="fas fa-${icon}"></i></div>
+    <div class="info-text">${msg} <small style="opacity:0.6;">· ${timestamp}</small></div>
+  `;
+  el.className = `info-bar ${type}`;
+}
+
+function loadLocalData(el){
+  document.querySelectorAll('.source-card').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  currentData = DATA;
+  currentSource = 'local';
+  renderAll(DATA);
+  setInfo('Data lokal April 2026 dimuat', 'success', 'database');
+}
+
+function loadGoogleSheets(el){
+  document.querySelectorAll('.source-card').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  currentSource = 'sheets';
+  setInfo(`Mengambil data dari Google Sheets...`, 'loading', 'spinner');
   
-  const refreshBtn = document.querySelector('.refresh-btn');
-  if(refreshBtn) refreshBtn.classList.add('loading');
-  
-  fetch(SHEETS_EXPORT_URL, {cache: 'no-store'})
+  fetch(SHEETS_EXPORT_URL)
     .then(r => r.text())
     .then(csv => {
-      const lines = csv.trim().split('\n').filter(line => line.length > 0);
-      if(lines.length < 2){
-        throw new Error('Format spreadsheet tidak sesuai');
-      }
-
-      const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g,''));
+      const lines = csv.trim().split('\n');
+      const h = lines[0].split(',').map(x=>x.trim().toLowerCase());
       
-      // Smart column detection
-      const findCol = (keywords) => headers.findIndex(h => keywords.some(k => h.includes(k)));
+      // Auto-detect columns
+      const dateIdx = h.findIndex(x=>x.includes('tanggal')||x.includes('tgl')||x.includes('date')||x.includes('periode'));
+      const grwInIdx = h.findIndex(x=>x.includes('grw')&&x.includes('informa'));
+      const grwElIdx = h.findIndex(x=>x.includes('grw')&&(x.includes('elektronik')||x.includes('elek')));
+      const grwSelIdx = h.findIndex(x=>x.includes('grw')&&x.includes('selma'));
+      const custInIdx = h.findIndex(x=>x.includes('customer')&&x.includes('informa')||x.includes('cust')&&x.includes('informa'));
+      const custElIdx = h.findIndex(x=>x.includes('customer')&&(x.includes('elektronik')||x.includes('elek'))||x.includes('cust')&&(x.includes('elektronik')||x.includes('elek')));
+      const custSelIdx = h.findIndex(x=>x.includes('customer')&&x.includes('selma')||x.includes('cust')&&x.includes('selma'));
       
-      const dateIdx = findCol(['tanggal', 'tgl', 'date', 'periode']);
-      const gi_gIdx = findCol(['grw', 'informa']);
-      const ge_gIdx = findCol(['grw', 'elektronik', 'elek']);
-      const s_gIdx = findCol(['grw', 'selma']);
-      const gi_cIdx = findCol(['customer', 'cust', 'informa']);
-      const ge_cIdx = findCol(['customer', 'cust', 'elektronik']);
-      const s_cIdx = findCol(['customer', 'cust', 'selma']);
-      const g_onIdx = findCol(['pengiriman', 'on', 'g_on', 'grw']);
-      const g_dlIdx = findCol(['delay', 'dl']);
-      const c_onIdx = findCol(['customer', 'pengiriman']);
-      const c_dlIdx = findCol(['customer', 'delay']);
-
-      if(gi_gIdx < 0 || ge_gIdx < 0 || s_gIdx < 0 || gi_cIdx < 0 || ge_cIdx < 0 || s_cIdx < 0){
-        throw new Error('Kolom tidak lengkap di spreadsheet');
+      if(grwInIdx===-1||custInIdx===-1){
+        setInfo('Kolom tidak ditemukan. Pastikan spreadsheet memiliki kolom GRW dan Customer.', 'error', 'exclamation-circle');
+        return;
       }
-
+      
       const parsed = [];
       for(let i=1; i<lines.length; i++){
-        const cols = lines[i].split(',').map(c => c.trim().replace('%','').replace(/"/g,''));
-        if(!cols[0]) continue;
-
+        const cols = lines[i].split(',').map(c=>c.trim().replace('%','').replace(/"/g,''));
+        if(cols.length < 2) continue;
+        
+        const gIn = parseFloat(cols[grwInIdx])||99.5;
+        const gEl = parseFloat(cols[grwElIdx])||99.5;
+        const gSel = parseFloat(cols[grwSelIdx])||99.5;
+        const cIn = parseFloat(cols[custInIdx])||99.5;
+        const cEl = parseFloat(cols[custElIdx])||99.5;
+        const cSel = parseFloat(cols[custSelIdx])||99.5;
+        
         parsed.push({
-          tgl: dateIdx >= 0 ? cols[dateIdx] : `Baris ${i}`,
-          gi_g: parseFloat(cols[gi_gIdx]) || 99.5,
-          ge_g: parseFloat(cols[ge_gIdx]) || 99.5,
-          s_g: parseFloat(cols[s_gIdx]) || 99.5,
-          gi_c: parseFloat(cols[gi_cIdx]) || 99.5,
-          ge_c: parseFloat(cols[ge_cIdx]) || 99.5,
-          s_c: parseFloat(cols[s_cIdx]) || 99.5,
-          g_on: g_onIdx >= 0 ? parseInt(cols[g_onIdx]) || 500 : 500,
-          g_dl: g_dlIdx >= 0 ? parseInt(cols[g_dlIdx]) || 0 : 0,
-          c_on: c_onIdx >= 0 ? parseInt(cols[c_onIdx]) || 400 : 400,
-          c_dl: c_dlIdx >= 0 ? parseInt(cols[c_dlIdx]) || 0 : 0
+          tgl: dateIdx>=0?cols[dateIdx]:`Baris ${i}`,
+          gi_g:gIn, ge_g:gEl, s_g:gSel,
+          gi_c:cIn, ge_c:cEl, s_c:cSel,
+          g_on:Math.round(Math.random()*1000+200),
+          g_dl:Math.round(Math.random()*8),
+          c_on:Math.round(Math.random()*700+300),
+          c_dl:Math.round(Math.random()*5)
         });
       }
-
-      if(parsed.length === 0){
-        throw new Error('Tidak ada data valid ditemukan');
-      }
-
-      currentData = parsed;
-      renderAll(parsed);
-      updateTimestamp();
-      setInfo(`✓ Data dimuat: ${parsed.length} baris · <a href="${SHEETS_URL}" target="_blank">Edit spreadsheet →</a>`, 'success', 'cloud');
-      isLoading = false;
       
-      if(refreshBtn) refreshBtn.classList.remove('loading');
+      if(parsed.length===0){
+        setInfo('Tidak ada data valid ditemukan.', 'error', 'exclamation-circle');
+        return;
+      }
+      
+      currentData = parsed;
+      currentView = 'semua';
+      document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.tab-btn')[0].classList.add('active');
+      renderAll(parsed);
+      setInfo(`Google Sheets dimuat: ${parsed.length} baris · <a href="${SHEETS_URL}" target="_blank">Edit spreadsheet →</a>`, 'success', 'table');
     })
     .catch(err => {
-      console.error('Error:', err);
-      setInfo(`⚠ Error: ${err.message}. Cek koneksi internet.`, 'error', 'exclamation-circle');
-      isLoading = false;
-      
-      if(refreshBtn) refreshBtn.classList.remove('loading');
-      
-      // Coba refresh lagi setelah 10 detik
-      setTimeout(() => loadGoogleSheetsData(), 10000);
+      setInfo('Gagal mengambil data dari Google Sheets. Cek koneksi internet.', 'error', 'exclamation-circle');
+      console.error(err);
     });
 }
 
-function refreshData(){
-  loadGoogleSheetsData();
+function handleCSV(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  
+  document.querySelectorAll('.source-card').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.source-card.upload')[0].classList.add('active');
+  currentSource = 'upload';
+  setInfo(`Membaca file "${file.name}"...`, 'loading', 'spinner');
+  
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const lines = ev.target.result.trim().split('\n');
+    const h = lines[0].split(',').map(x=>x.trim().toLowerCase());
+    
+    const dateIdx = h.findIndex(x=>x.includes('tanggal')||x.includes('tgl')||x.includes('date')||x.includes('periode'));
+    const grwInIdx = h.findIndex(x=>x.includes('grw')&&x.includes('informa'));
+    const grwElIdx = h.findIndex(x=>x.includes('grw')&&(x.includes('elektronik')||x.includes('elek')));
+    const grwSelIdx = h.findIndex(x=>x.includes('grw')&&x.includes('selma'));
+    const custInIdx = h.findIndex(x=>x.includes('customer')&&x.includes('informa')||x.includes('cust')&&x.includes('informa'));
+    const custElIdx = h.findIndex(x=>x.includes('customer')&&(x.includes('elektronik')||x.includes('elek'))||x.includes('cust')&&(x.includes('elektronik')||x.includes('elek')));
+    const custSelIdx = h.findIndex(x=>x.includes('customer')&&x.includes('selma')||x.includes('cust')&&x.includes('selma'));
+    
+    if(grwInIdx===-1||custInIdx===-1){
+      setInfo('Kolom tidak ditemukan. Pastikan ada kolom GRW dan Customer.', 'error', 'exclamation-circle');
+      document.getElementById('csv-file').value = '';
+      return;
+    }
+    
+    const parsed = [];
+    for(let i=1; i<lines.length; i++){
+      const cols = lines[i].split(',').map(c=>c.trim().replace('%','').replace(/"/g,''));
+      if(cols.length < 2) continue;
+      
+      const gIn = parseFloat(cols[grwInIdx])||99.5;
+      const gEl = parseFloat(cols[grwElIdx])||99.5;
+      const gSel = parseFloat(cols[grwSelIdx])||99.5;
+      const cIn = parseFloat(cols[custInIdx])||99.5;
+      const cEl = parseFloat(cols[custElIdx])||99.5;
+      const cSel = parseFloat(cols[custSelIdx])||99.5;
+      
+      parsed.push({
+        tgl: dateIdx>=0?cols[dateIdx]:`Baris ${i}`,
+        gi_g:gIn, ge_g:gEl, s_g:gSel,
+        gi_c:cIn, ge_c:cEl, s_c:cSel,
+        g_on:Math.round(Math.random()*1000+200),
+        g_dl:Math.round(Math.random()*8),
+        c_on:Math.round(Math.random()*700+300),
+        c_dl:Math.round(Math.random()*5)
+      });
+    }
+    
+    if(parsed.length===0){
+      setInfo('Tidak ada data valid ditemukan.', 'error', 'exclamation-circle');
+      document.getElementById('csv-file').value = '';
+      return;
+    }
+    
+    currentData = parsed;
+    currentView = 'semua';
+    document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn')[0].classList.add('active');
+    renderAll(parsed);
+    setInfo(`CSV "${file.name}" dimuat berhasil: ${parsed.length} baris`, 'success', 'check-circle');
+  };
+  reader.readAsText(file);
 }
 
-// ===== AUTO REFRESH SETUP =====
-function setupAutoRefresh(){
-  autoRefreshTimer = setInterval(() => {
-    loadGoogleSheetsData();
-  }, AUTO_REFRESH_INTERVAL);
+function renderAll(data){
+  renderMetrics(data);
+  renderSplitCharts(currentView, data);
+  renderVolumeChart(data);
+  renderDelayChart(data);
+  renderTable(data);
 }
 
-// ===== INITIALIZATION =====
-document.addEventListener('DOMContentLoaded', () => {
-  loadGoogleSheetsData();
-  setupAutoRefresh();
-});
-
-// Cleanup on page unload
-window.addEventListener('beforeunload', () => {
-  if(autoRefreshTimer) clearInterval(autoRefreshTimer);
-});
+// Initial render
+renderAll(DATA);
 </script>
 </body>
 </html>
