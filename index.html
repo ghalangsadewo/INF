@@ -309,24 +309,70 @@
     letter-spacing: 0.04em;
   }
 
-  /* Upload zone */
-  .upload-zone {
+  /* Data source card */
+  .data-source-card {
     border: 1.5px dashed var(--border2);
     border-radius: var(--radius);
     padding: 1.5rem 2rem;
-    text-align: center;
-    cursor: pointer;
     margin-bottom: 1.5rem;
-    transition: border-color 0.2s, background 0.2s;
     background: rgba(79,142,247,0.02);
   }
-  .upload-zone:hover {
-    border-color: var(--accent);
-    background: rgba(79,142,247,0.05);
+  .data-source-card h3 {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text);
   }
-  .upload-zone p { font-size: 13px; color: var(--text2); margin-bottom: 4px; }
-  .upload-zone small { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
-  #csv-file { display: none; }
+  .data-source-options {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .data-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s;
+    font-family: 'Sora', sans-serif;
+  }
+  .data-btn:hover {
+    border-color: var(--accent);
+    background: rgba(79,142,247,0.08);
+  }
+  .data-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .data-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+  .data-source-link {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    background: rgba(52,201,142,0.08);
+    border: 1px solid rgba(52,201,142,0.2);
+    font-size: 12px;
+    color: var(--accent2);
+  }
+  .data-source-link a {
+    color: var(--accent2);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .data-source-link a:hover {
+    text-decoration: underline;
+  }
 
   .info-bar {
     padding: 10px 14px;
@@ -339,6 +385,23 @@
   .info-bar.default { background: rgba(79,142,247,0.08); color: #6ba3ff; border: 1px solid rgba(79,142,247,0.2); }
   .info-bar.success { background: rgba(52,201,142,0.08); color: var(--accent2); border: 1px solid rgba(52,201,142,0.2); }
   .info-bar.error { background: rgba(232,92,92,0.08); color: var(--danger); border: 1px solid rgba(232,92,92,0.2); }
+  .info-bar.loading { background: rgba(155,127,232,0.08); color: #b99df5; border: 1px solid rgba(155,127,232,0.2); }
+
+  /* Loading spinner */
+  .spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  #csv-file { display: none; }
 </style>
 </head>
 <body>
@@ -358,12 +421,29 @@
     <p class="page-desc">Monitoring harian pencapaian SLA · INFORMA · INFORMA ELEKTRONIK · SELMA</p>
   </div>
 
-  <div class="upload-zone" onclick="document.getElementById('csv-file').click()">
-    <p>Upload CSV baru untuk memperbarui data</p>
-    <small>Format: Periode, GRW, Customer — atau sesuai format spreadsheet asli</small>
+  <div class="data-source-card">
+    <h3>Sumber Data</h3>
+    <div class="data-source-options">
+      <button class="data-btn active" id="btn-local" onclick="setDataSource('local')">
+        <svg fill="currentColor" viewBox="0 0 20 20"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+        Data Lokal
+      </button>
+      <button class="data-btn" id="btn-sheets" onclick="setDataSource('sheets')">
+        <svg fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm4 2a1 1 0 011 1v4a1 1 0 11-2 0V9a1 1 0 011-1zm2-1a1 1 0 100 2h4a1 1 0 100-2H8zm6 1a1 1 0 011 1v4a1 1 0 11-2 0V9a1 1 0 011-1z"/></svg>
+        Google Sheets
+      </button>
+      <button class="data-btn" id="btn-csv" onclick="setDataSource('csv')">
+        <svg fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/></svg>
+        Upload CSV
+      </button>
+    </div>
+    <div class="data-source-link" id="source-info">
+      Menggunakan data lokal April 2026
+    </div>
   </div>
+
   <input type="file" id="csv-file" accept=".csv" onchange="handleCSV(event)">
-  <div class="info-bar default" id="infoBar">Menampilkan data aktual April 2026. Upload CSV untuk memperbarui.</div>
+  <div class="info-bar default" id="infoBar">Menampilkan data aktual April 2026</div>
 
   <div class="metrics-grid" id="metricsGrid"></div>
 
@@ -491,6 +571,9 @@ const DATA = [
   {tgl:'24/04',gi_g:100,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:419,g_dl:0,c_on:449,c_dl:0},
   {tgl:'25/04',gi_g:99.03,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:713,g_dl:6,c_on:512,c_dl:0},
 ];
+
+const SHEET_ID = '1DAOcHYS2n8jja_AbYW9A2_ncfmefbMEWZ_OkANtkkT8';
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1DAOcHYS2n8jja_AbYW9A2_ncfmefbMEWZ_OkANtkkT8/edit?hl=id&pli=1&gid=0#gid=0';
 
 function avg3(a,b,c){return (a+b+c)/3;}
 function pct(v){return v.toFixed(2)+'%';}
@@ -656,6 +739,7 @@ function renderTable(data){
 
 let currentData = DATA;
 let currentView = 'semua';
+let currentSource = 'local';
 
 function setView(v, el){
   currentView = v;
@@ -664,36 +748,145 @@ function setView(v, el){
   renderSplitCharts(v, currentData);
 }
 
+function setDataSource(source) {
+  const btns = document.querySelectorAll('.data-btn');
+  btns.forEach(b => b.classList.remove('active'));
+  document.getElementById(`btn-${source}`).classList.add('active');
+  currentSource = source;
+
+  const infoEl = document.getElementById('source-info');
+
+  if (source === 'local') {
+    infoEl.innerHTML = 'Menggunakan data lokal April 2026';
+    currentData = DATA;
+    renderAll(DATA);
+  } else if (source === 'sheets') {
+    infoEl.innerHTML = '<span class="spinner"></span> Loading data dari Google Sheets...';
+    loadFromGoogleSheets();
+  } else if (source === 'csv') {
+    infoEl.innerHTML = 'Klik untuk memilih file CSV dari komputer Anda';
+    document.getElementById('csv-file').click();
+  }
+}
+
+async function loadFromGoogleSheets() {
+  try {
+    const infoEl = document.getElementById('source-info');
+    
+    // Export sheet as CSV
+    const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+    
+    const response = await fetch(csvUrl);
+    if (!response.ok) throw new Error('Gagal mengambil data dari Google Sheets');
+    
+    const csv = await response.text();
+    const lines = csv.trim().split('\n');
+    
+    if (lines.length < 2) {
+      setInfo('Data kosong atau format tidak valid', 'error');
+      return;
+    }
+
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    
+    // Find column indices
+    const dateIdx = headers.findIndex(h => h.includes('tanggal') || h.includes('tgl') || h.includes('date'));
+    const giGIdx = headers.findIndex(h => h.includes('grw') && h.includes('informa') && !h.includes('cust'));
+    const geGIdx = headers.findIndex(h => h.includes('grw') && (h.includes('elek') || h.includes('elektronik')));
+    const sGIdx = headers.findIndex(h => h.includes('grw') && h.includes('selma'));
+    const giCIdx = headers.findIndex(h => h.includes('cust') && h.includes('informa'));
+    const geCIdx = headers.findIndex(h => h.includes('cust') && (h.includes('elek') || h.includes('elektronik')));
+    const sCIdx = headers.findIndex(h => h.includes('cust') && h.includes('selma'));
+
+    const parsed = [];
+    for (let i = 1; i < lines.length; i++) {
+      const cols = lines[i].split(',').map(c => c.trim().replace('%', ''));
+      if (cols.length < 2) continue;
+
+      try {
+        const giG = giGIdx >= 0 ? parseFloat(cols[giGIdx]) : 100;
+        const geG = geGIdx >= 0 ? parseFloat(cols[geGIdx]) : 100;
+        const sG = sGIdx >= 0 ? parseFloat(cols[sGIdx]) : 100;
+        const giC = giCIdx >= 0 ? parseFloat(cols[giCIdx]) : 100;
+        const geC = geCIdx >= 0 ? parseFloat(cols[geCIdx]) : 100;
+        const sC = sCIdx >= 0 ? parseFloat(cols[sCIdx]) : 100;
+
+        if (isNaN(giG) && isNaN(geG) && isNaN(sG) && isNaN(giC) && isNaN(geC) && isNaN(sC)) continue;
+
+        const tgl = dateIdx >= 0 ? cols[dateIdx] : `Baris ${i}`;
+
+        parsed.push({
+          tgl: tgl,
+          gi_g: isNaN(giG) ? 100 : giG,
+          ge_g: isNaN(geG) ? 100 : geG,
+          s_g: isNaN(sG) ? 100 : sG,
+          gi_c: isNaN(giC) ? 100 : giC,
+          ge_c: isNaN(geC) ? 100 : geC,
+          s_c: isNaN(sC) ? 100 : sC,
+          g_on: 100,
+          g_dl: 0,
+          c_on: 100,
+          c_dl: 0
+        });
+      } catch (e) {
+        console.log('Skip row:', i);
+      }
+    }
+
+    if (parsed.length === 0) {
+      setInfo('Tidak ada data valid ditemukan dalam sheet', 'error');
+      return;
+    }
+
+    currentData = parsed;
+    renderAll(parsed);
+    setInfo(`✓ Data dimuat dari Google Sheets: ${parsed.length} baris`, 'success');
+    
+    const infoEl2 = document.getElementById('source-info');
+    infoEl2.innerHTML = `📊 Sumber: <a href="${SHEET_URL}" target="_blank" rel="noopener">Google Sheets (Real-time)</a>`;
+
+  } catch (error) {
+    setInfo(`Error: ${error.message}`, 'error');
+  }
+}
+
 function handleCSV(e){
   const file = e.target.files[0];
   if(!file) return;
   const reader = new FileReader();
   reader.onload = function(ev){
-    const lines = ev.target.result.trim().split('\n');
-    const h = lines[0].split(',').map(x=>x.trim().toLowerCase());
-    const pi = h.findIndex(x=>x.includes('periode')||x.includes('bulan')||x.includes('tgl'));
-    const gi = h.findIndex(x=>x.includes('grw'));
-    const ci = h.findIndex(x=>x.includes('customer')||x.includes('cust'));
-    if(gi===-1||ci===-1){
-      setInfo('Kolom tidak ditemukan. Pastikan ada kolom GRW dan Customer.','error');
-      return;
+    try {
+      const lines = ev.target.result.trim().split('\n');
+      const h = lines[0].split(',').map(x=>x.trim().toLowerCase());
+      const pi = h.findIndex(x=>x.includes('periode')||x.includes('bulan')||x.includes('tgl')||x.includes('tanggal'));
+      const gi = h.findIndex(x=>x.includes('grw'));
+      const ci = h.findIndex(x=>x.includes('customer')||x.includes('cust'));
+      if(gi===-1||ci===-1){
+        setInfo('Kolom tidak ditemukan. Pastikan ada kolom GRW dan Customer.','error');
+        return;
+      }
+      const parsed = [];
+      for(let i=1;i<lines.length;i++){
+        const cols = lines[i].split(',').map(c=>c.trim().replace('%',''));
+        const gv = parseFloat(cols[gi]), cv = parseFloat(cols[ci]);
+        if(isNaN(gv)||isNaN(cv)) continue;
+        parsed.push({
+          tgl: pi>=0?cols[pi]:`Baris ${i}`,
+          gi_g:gv, ge_g:gv, s_g:gv,
+          gi_c:cv, ge_c:cv, s_c:cv,
+          g_on:100, g_dl:0, c_on:100, c_dl:0
+        });
+      }
+      if(parsed.length===0){setInfo('Tidak ada data valid.','error');return;}
+      currentData = parsed;
+      renderAll(parsed);
+      setInfo(`✓ Data dimuat: ${parsed.length} baris dari "${file.name}"`, 'success');
+      
+      const infoEl = document.getElementById('source-info');
+      infoEl.innerHTML = `📁 File: <strong>${file.name}</strong> (${new Date().toLocaleString('id-ID')})`;
+    } catch(err) {
+      setInfo(`Error: ${err.message}`, 'error');
     }
-    const parsed = [];
-    for(let i=1;i<lines.length;i++){
-      const cols = lines[i].split(',').map(c=>c.trim().replace('%',''));
-      const gv = parseFloat(cols[gi]), cv = parseFloat(cols[ci]);
-      if(isNaN(gv)||isNaN(cv)) continue;
-      parsed.push({
-        tgl: pi>=0?cols[pi]:`Baris ${i}`,
-        gi_g:gv, ge_g:gv, s_g:gv,
-        gi_c:cv, ge_c:cv, s_c:cv,
-        g_on:100, g_dl:0, c_on:100, c_dl:0
-      });
-    }
-    if(parsed.length===0){setInfo('Tidak ada data valid.','error');return;}
-    currentData = parsed;
-    renderAll(parsed);
-    setInfo(`Data dimuat: ${parsed.length} baris dari "${file.name}"`, 'success');
   };
   reader.readAsText(file);
 }
@@ -712,6 +905,7 @@ function renderAll(data){
   renderTable(data);
 }
 
+// Initialize
 renderAll(DATA);
 </script>
 </body>
