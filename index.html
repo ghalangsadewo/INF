@@ -514,26 +514,27 @@
   <div class="two-col">
     <div class="chart-card">
       <div class="chart-header">
-        <span class="chart-title">Volume Pengiriman Harian</span>
+        <span class="chart-title">Rata-rata SLA Harian</span>
         <div class="legend">
           <div class="legend-item"><div class="legend-dot" style="background:#4f8ef7"></div>GRW</div>
           <div class="legend-item"><div class="legend-dot" style="background:#34c98e"></div>Customer</div>
         </div>
       </div>
       <div style="position:relative;width:100%;height:240px;">
-        <canvas id="volChart"></canvas>
+        <canvas id="avgChart"></canvas>
       </div>
     </div>
     <div class="chart-card">
       <div class="chart-header">
-        <span class="chart-title">Total Delay per Hari</span>
+        <span class="chart-title">Perbandingan Kategori</span>
         <div class="legend">
-          <div class="legend-item"><div class="legend-dot" style="background:#e85c5c"></div>GRW Delay</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#e8a34f"></div>Customer Delay</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#4f8ef7"></div>INFORMA</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#9b7fe8"></div>INFO.ELEK</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#e8a34f"></div>SELMA</div>
         </div>
       </div>
       <div style="position:relative;width:100%;height:240px;">
-        <canvas id="delayChart"></canvas>
+        <canvas id="categoryChart"></canvas>
       </div>
     </div>
   </div>
@@ -542,9 +543,9 @@
     <div class="table-header">
       <span class="chart-title">Detail Pencapaian SLA Harian</span>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <span class="badge badge-ok">≥99% Tercapai</span>
-        <span class="badge badge-warn">95–98% Cukup</span>
-        <span class="badge badge-bad">&lt;95% Perlu Tindakan</span>
+        <span class="badge badge-ok">≥95% Tercapai</span>
+        <span class="badge badge-warn">80–94% Cukup</span>
+        <span class="badge badge-bad">&lt;80% Perlu Tindakan</span>
       </div>
     </div>
     <div class="table-wrap">
@@ -569,45 +570,34 @@
 </main>
 
 <footer class="footer">
-  SLA MONITORING DASHBOARD · DATA APRIL 2026 · AUTO-GENERATED
+  SLA MONITORING DASHBOARD · DATA REAL-TIME FROM GOOGLE SHEETS
 </footer>
 
 <script>
+// Sample data untuk testing
 const DATA = [
-  {tgl:'01/04',gi_g:99.75,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:923,g_dl:2,c_on:552,c_dl:0},
-  {tgl:'02/04',gi_g:99.30,ge_g:100,s_g:100,gi_c:99.75,ge_c:100,s_c:100,g_on:305,g_dl:2,c_on:487,c_dl:1},
-  {tgl:'03/04',gi_g:99.67,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:366,g_dl:1,c_on:534,c_dl:0},
-  {tgl:'04/04',gi_g:99.63,ge_g:100,s_g:97.37,gi_c:100,ge_c:100,s_c:100,g_on:311,g_dl:2,c_on:564,c_dl:0},
-  {tgl:'05/04',gi_g:99.76,ge_g:100,s_g:98.51,gi_c:99.80,ge_c:100,s_c:100,g_on:569,g_dl:3,c_on:633,c_dl:1},
-  {tgl:'06/04',gi_g:99.62,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:337,g_dl:1,c_on:879,c_dl:0},
-  {tgl:'07/04',gi_g:99.56,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:286,g_dl:1,c_on:696,c_dl:0},
-  {tgl:'08/04',gi_g:99.90,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:1199,g_dl:1,c_on:610,c_dl:0},
-  {tgl:'09/04',gi_g:99.65,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:1270,g_dl:4,c_on:580,c_dl:0},
-  {tgl:'10/04',gi_g:99.59,ge_g:100,s_g:99.10,gi_c:100,ge_c:100,s_c:100,g_on:1365,g_dl:6,c_on:621,c_dl:0},
-  {tgl:'11/04',gi_g:99.85,ge_g:100,s_g:98.04,gi_c:99.73,ge_c:100,s_c:100,g_on:745,g_dl:2,c_on:433,c_dl:1},
-  {tgl:'12/04',gi_g:99.89,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:1007,g_dl:1,c_on:452,c_dl:0},
-  {tgl:'13/04',gi_g:100,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:684,g_dl:0,c_on:654,c_dl:0},
-  {tgl:'14/04',gi_g:100,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:97.65,g_on:781,g_dl:0,c_on:712,c_dl:2},
-  {tgl:'15/04',gi_g:100,ge_g:100,s_g:100,gi_c:99.78,ge_c:100,s_c:100,g_on:811,g_dl:0,c_on:557,c_dl:1},
-  {tgl:'16/04',gi_g:100,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:872,g_dl:0,c_on:541,c_dl:0},
-  {tgl:'17/04',gi_g:99.82,ge_g:100,s_g:100,gi_c:99.75,ge_c:94.44,s_c:100,g_on:600,g_dl:1,c_on:458,c_dl:2},
-  {tgl:'18/04',gi_g:100,ge_g:100,s_g:100,gi_c:99.76,ge_c:100,s_c:100,g_on:575,g_dl:0,c_on:485,c_dl:1},
-  {tgl:'19/04',gi_g:99.58,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:600,g_dl:2,c_on:442,c_dl:0},
-  {tgl:'20/04',gi_g:99.04,ge_g:100,s_g:98.95,gi_c:99.40,ge_c:100,s_c:100,g_on:424,g_dl:4,c_on:782,c_dl:4},
-  {tgl:'21/04',gi_g:99.59,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:262,g_dl:1,c_on:561,c_dl:0},
-  {tgl:'22/04',gi_g:99.49,ge_g:100,s_g:99.22,gi_c:100,ge_c:100,s_c:100,g_on:731,g_dl:4,c_on:516,c_dl:0},
-  {tgl:'23/04',gi_g:99.13,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:624,g_dl:4,c_on:420,c_dl:0},
-  {tgl:'24/04',gi_g:100,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:419,g_dl:0,c_on:449,c_dl:0},
-  {tgl:'25/04',gi_g:99.03,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:713,g_dl:6,c_on:512,c_dl:0},
+  {tgl:'01/04',gi_g:100,ge_g:41,s_g:84,gi_c:100,ge_c:26,s_c:71},
+  {tgl:'02/04',gi_g:100,ge_g:9,s_g:11,gi_c:100,ge_c:26,s_c:63},
+  {tgl:'03/04',gi_g:100,ge_g:13,s_g:50,gi_c:100,ge_c:12,s_c:60},
+  {tgl:'04/04',gi_g:100,ge_g:7,s_g:37,gi_c:100,ge_c:14,s_c:100},
+  {tgl:'05/04',gi_g:100,ge_g:18,s_g:100,gi_c:100,ge_c:31,s_c:92},
+  {tgl:'06/04',gi_g:100,ge_g:19,s_g:59,gi_c:100,ge_c:43,s_c:100},
 ];
 
-const SHEETS_EXPORT_URL = 'https://docs.google.com/spreadsheets/d/1_0EVn5X9GdqNnouzEsvfOaVS7UneXOitpfUTc6plcG4/export?format=csv&gid=0';
+// URL Google Sheets yang sudah diperbaiki
+const SHEETS_EXPORT_URL = 'https://docs.google.com/spreadsheets/d/1DAOcHYS2n8jja_AbYW9A2_ncfmefbMEWZ_OkANtkkT8/export?format=csv&gid=0';
+
+function parsePercentage(str) {
+  if (!str) return 0;
+  const num = parseFloat(str.toString().replace('%', '').trim());
+  return isNaN(num) ? 0 : num;
+}
 
 function avg3(a,b,c){return (a+b+c)/3;}
 function pct(v){return v.toFixed(2)+'%';}
 function badge(v){
-  if(v>=99) return `<span class="badge badge-ok">${pct(v)}</span>`;
-  if(v>=95) return `<span class="badge badge-warn">${pct(v)}</span>`;
+  if(v>=95) return `<span class="badge badge-ok">${pct(v)}</span>`;
+  if(v>=80) return `<span class="badge badge-warn">${pct(v)}</span>`;
   return `<span class="badge badge-bad">${pct(v)}</span>`;
 }
 
@@ -618,9 +608,9 @@ function renderMetrics(data){
   const cAvg = (ca.reduce((a,b)=>a+b,0)/ca.length).toFixed(2);
   const gMin = Math.min(...ga).toFixed(2);
   const cMin = Math.min(...ca).toFixed(2);
-  const totalOn = data.reduce((a,d)=>a+d.g_on+d.c_on,0);
-  const totalDl = data.reduce((a,d)=>a+d.g_dl+d.c_dl,0);
-  const overallPct = (totalOn/(totalOn+totalDl)*100).toFixed(2);
+  const gMax = Math.max(...ga).toFixed(2);
+  const cMax = Math.max(...ca).toFixed(2);
+  
   document.getElementById('metricsGrid').innerHTML = `
     <div class="metric-card blue">
       <div class="metric-label">Rata-rata SLA GRW</div>
@@ -633,29 +623,29 @@ function renderMetrics(data){
       <div class="metric-sub">${data.length} hari · semua kategori</div>
     </div>
     <div class="metric-card purple">
-      <div class="metric-label">Overall SLA Rate</div>
-      <div class="metric-value">${overallPct}%</div>
-      <div class="metric-sub">GRW + Customer gabungan</div>
+      <div class="metric-label">SLA Tertinggi GRW</div>
+      <div class="metric-value">${gMax}%</div>
+      <div class="metric-sub">Performa terbaik bulan ini</div>
     </div>
     <div class="metric-card amber">
       <div class="metric-label">SLA Terendah GRW</div>
       <div class="metric-value">${gMin}%</div>
-      <div class="metric-sub">Titik terendah bulan ini</div>
+      <div class="metric-sub">Performa terburuk bulan ini</div>
     </div>
     <div class="metric-card pink">
-      <div class="metric-label">SLA Terendah Customer</div>
-      <div class="metric-value">${cMin}%</div>
-      <div class="metric-sub">Titik terendah bulan ini</div>
+      <div class="metric-label">SLA Tertinggi Customer</div>
+      <div class="metric-value">${cMax}%</div>
+      <div class="metric-sub">Performa terbaik bulan ini</div>
     </div>
     <div class="metric-card danger">
-      <div class="metric-label">Total Delay</div>
-      <div class="metric-value">${totalDl}</div>
-      <div class="metric-sub">dari ${(totalOn+totalDl).toLocaleString()} pengiriman</div>
+      <div class="metric-label">SLA Terendah Customer</div>
+      <div class="metric-value">${cMin}%</div>
+      <div class="metric-sub">Performa terburuk bulan ini</div>
     </div>
   `;
 }
 
-let grwChart, custChart, volChart, delayChart;
+let grwChart, custChart, avgChart, categoryChart;
 
 const GRW_CATS = {
   'semua':            [{key:'gi_g',label:'INFORMA',color:'#4f8ef7'},{key:'ge_g',label:'INFO.ELEK',color:'#9b7fe8'},{key:'s_g',label:'SELMA',color:'#e8a34f'}],
@@ -682,7 +672,7 @@ function chartOptions(){ return {
   responsive:true, maintainAspectRatio:false,
   plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}%`}}},
   scales:{
-    y:{min:92, max:100.5, ticks:{callback:v=>v+'%', font:{size:10}, color:'#555a6a'}, grid:{color:'rgba(255,255,255,0.04)'}, border:{color:'rgba(255,255,255,0.05)'}},
+    y:{min:0, max:100, ticks:{callback:v=>v+'%', font:{size:10}, color:'#555a6a'}, grid:{color:'rgba(255,255,255,0.04)'}, border:{color:'rgba(255,255,255,0.05)'}},
     x:{ticks:{font:{size:9}, maxRotation:45, autoSkip:false, color:'#555a6a'}, grid:{display:false}, border:{color:'rgba(255,255,255,0.05)'}}
   }
 };}
@@ -703,47 +693,41 @@ function renderSplitCharts(view, data){
   custChart = new Chart(document.getElementById('custChart'),{type:'line',data:{labels:data.map(d=>d.tgl),datasets:custDs},options:chartOptions()});
 }
 
-function renderVolumeChart(data){
-  if(volChart) volChart.destroy();
-  volChart = new Chart(document.getElementById('volChart'),{
-    type:'bar',
+function renderAverageChart(data){
+  if(avgChart) avgChart.destroy();
+  const grwAvgs = data.map(d=>avg3(d.gi_g, d.ge_g, d.s_g));
+  const custAvgs = data.map(d=>avg3(d.gi_c, d.ge_c, d.s_c));
+  
+  avgChart = new Chart(document.getElementById('avgChart'),{
+    type:'line',
     data:{
       labels:data.map(d=>d.tgl),
       datasets:[
-        {label:'GRW',data:data.map(d=>d.g_on+d.g_dl),backgroundColor:'rgba(79,142,247,0.6)',stack:'s'},
-        {label:'Customer',data:data.map(d=>d.c_on+d.c_dl),backgroundColor:'rgba(52,201,142,0.6)',stack:'s'},
+        {label:'GRW',data:grwAvgs,borderColor:'#4f8ef7',backgroundColor:'rgba(79,142,247,0.1)',borderWidth:2.5,pointRadius:4,fill:true,tension:0.3},
+        {label:'Customer',data:custAvgs,borderColor:'#34c98e',backgroundColor:'rgba(52,201,142,0.1)',borderWidth:2.5,pointRadius:4,fill:true,tension:0.3},
       ]
     },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{
-        x:{ticks:{font:{size:8}, maxRotation:45, autoSkip:false, color:'#555a6a'}, grid:{display:false}, border:{color:'rgba(255,255,255,0.05)'}},
-        y:{ticks:{font:{size:9}, color:'#555a6a'}, grid:{color:'rgba(255,255,255,0.04)'}, border:{color:'rgba(255,255,255,0.05)'}}
-      }
-    }
+    options:chartOptions()
   });
 }
 
-function renderDelayChart(data){
-  if(delayChart) delayChart.destroy();
-  delayChart = new Chart(document.getElementById('delayChart'),{
-    type:'bar',
+function renderCategoryChart(data){
+  if(categoryChart) categoryChart.destroy();
+  const informa = data.map(d=>(d.gi_g+d.gi_c)/2);
+  const elek = data.map(d=>(d.ge_g+d.ge_c)/2);
+  const selma = data.map(d=>(d.s_g+d.s_c)/2);
+  
+  categoryChart = new Chart(document.getElementById('categoryChart'),{
+    type:'line',
     data:{
       labels:data.map(d=>d.tgl),
       datasets:[
-        {label:'GRW Delay',data:data.map(d=>d.g_dl),backgroundColor:'rgba(232,92,92,0.7)'},
-        {label:'Customer Delay',data:data.map(d=>d.c_dl),backgroundColor:'rgba(232,163,79,0.7)'},
+        {label:'INFORMA',data:informa,borderColor:'#4f8ef7',backgroundColor:'rgba(79,142,247,0.1)',borderWidth:2.5,pointRadius:4,fill:true,tension:0.3},
+        {label:'INFO.ELEK',data:elek,borderColor:'#9b7fe8',backgroundColor:'rgba(155,127,232,0.1)',borderWidth:2.5,pointRadius:4,fill:true,tension:0.3},
+        {label:'SELMA',data:selma,borderColor:'#e8a34f',backgroundColor:'rgba(232,163,79,0.1)',borderWidth:2.5,pointRadius:4,fill:true,tension:0.3},
       ]
     },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{
-        x:{ticks:{font:{size:8}, maxRotation:45, autoSkip:false, color:'#555a6a'}, grid:{display:false}, border:{color:'rgba(255,255,255,0.05)'}},
-        y:{ticks:{font:{size:9}, stepSize:1, color:'#555a6a'}, grid:{color:'rgba(255,255,255,0.04)'}, border:{color:'rgba(255,255,255,0.05)'}}
-      }
-    }
+    options:chartOptions()
   });
 }
 
@@ -804,53 +788,54 @@ function loadGoogleSheets(el){
   fetch(SHEETS_EXPORT_URL)
     .then(r => r.text())
     .then(csv => {
-      const lines = csv.trim().split('\n');
+      const lines = csv.trim().split('\n').filter(line => line.trim());
+      console.log('CSV Data:', csv);
+      
       if(lines.length < 2){
         setInfo('Sheet kosong atau tidak dapat diakses.', 'error', 'exclamation-circle');
         return;
       }
       
-      const h = lines[0].split(',').map(x=>x.trim().toLowerCase());
+      const headers = lines[0].split(',').map(h => h.trim().toUpperCase());
+      console.log('Headers:', headers);
       
-      // Auto-detect columns
-      const dateIdx = h.findIndex(x=>x.includes('tanggal')||x.includes('tgl')||x.includes('date')||x.includes('periode'));
-      const grwInIdx = h.findIndex(x=>x.includes('grw')&&x.includes('informa'));
-      const grwElIdx = h.findIndex(x=>x.includes('grw')&&(x.includes('elektronik')||x.includes('elek')));
-      const grwSelIdx = h.findIndex(x=>x.includes('grw')&&x.includes('selma'));
-      const custInIdx = h.findIndex(x=>(x.includes('customer')||x.includes('cust'))&&x.includes('informa'));
-      const custElIdx = h.findIndex(x=>(x.includes('customer')||x.includes('cust'))&&(x.includes('elektronik')||x.includes('elek')));
-      const custSelIdx = h.findIndex(x=>(x.includes('customer')||x.includes('cust'))&&x.includes('selma'));
+      // Cari index kolom
+      const dateIdx = headers.findIndex(h => h.includes('TANGGAL'));
+      const grwInIdx = headers.findIndex(h => h.includes('GRW') && h.includes('INFORMA'));
+      const grwElIdx = headers.findIndex(h => h.includes('GRW') && h.includes('ELEK'));
+      const grwSelIdx = headers.findIndex(h => h.includes('GRW') && h.includes('SELMA'));
+      const custInIdx = headers.findIndex(h => h.includes('CUST') && h.includes('INFORMA'));
+      const custElIdx = headers.findIndex(h => h.includes('CUST') && h.includes('ELEK'));
+      const custSelIdx = headers.findIndex(h => h.includes('CUST') && h.includes('SELMA'));
       
-      if(grwInIdx===-1||custInIdx===-1){
-        setInfo('Kolom tidak ditemukan. Pastikan spreadsheet memiliki kolom GRW dan Customer.', 'error', 'exclamation-circle');
+      console.log('Column indices:', {dateIdx, grwInIdx, grwElIdx, grwSelIdx, custInIdx, custElIdx, custSelIdx});
+      
+      if(grwInIdx === -1 || custInIdx === -1){
+        setInfo('❌ Kolom tidak ditemukan. Periksa header spreadsheet Anda.', 'error', 'exclamation-circle');
         return;
       }
       
       const parsed = [];
-      for(let i=1; i<lines.length; i++){
-        const cols = lines[i].split(',').map(c=>c.trim().replace('%','').replace(/"/g,''));
+      for(let i = 1; i < lines.length; i++){
+        const cols = lines[i].split(',').map(c => c.trim());
         if(cols.length < 2 || !cols[0]) continue;
         
-        const gIn = parseFloat(cols[grwInIdx])||99.5;
-        const gEl = parseFloat(cols[grwElIdx])||99.5;
-        const gSel = parseFloat(cols[grwSelIdx])||99.5;
-        const cIn = parseFloat(cols[custInIdx])||99.5;
-        const cEl = parseFloat(cols[custElIdx])||99.5;
-        const cSel = parseFloat(cols[custSelIdx])||99.5;
+        const row = {
+          tgl: dateIdx >= 0 ? cols[dateIdx] : `Baris ${i}`,
+          gi_g: parsePercentage(cols[grwInIdx]),
+          ge_g: parsePercentage(cols[grwElIdx]),
+          s_g: parsePercentage(cols[grwSelIdx]),
+          gi_c: parsePercentage(cols[custInIdx]),
+          ge_c: parsePercentage(cols[custElIdx]),
+          s_c: parsePercentage(cols[custSelIdx]),
+        };
         
-        parsed.push({
-          tgl: dateIdx>=0?cols[dateIdx]:`Baris ${i}`,
-          gi_g:gIn, ge_g:gEl, s_g:gSel,
-          gi_c:cIn, ge_c:cEl, s_c:cSel,
-          g_on:Math.round(Math.random()*1000+200),
-          g_dl:Math.round(Math.random()*8),
-          c_on:Math.round(Math.random()*700+300),
-          c_dl:Math.round(Math.random()*5)
-        });
+        parsed.push(row);
+        console.log(`Row ${i}:`, row);
       }
       
-      if(parsed.length===0){
-        setInfo('Tidak ada data valid ditemukan.', 'error', 'exclamation-circle');
+      if(parsed.length === 0){
+        setInfo('❌ Tidak ada data valid ditemukan di sheet.', 'error', 'exclamation-circle');
         return;
       }
       
@@ -859,11 +844,11 @@ function loadGoogleSheets(el){
       document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
       document.querySelectorAll('.tab-btn')[0].classList.add('active');
       renderAll(parsed);
-      setInfo(`Google Sheets dimuat: ${parsed.length} baris`, 'success', 'table');
+      setInfo(`✅ Google Sheets dimuat: ${parsed.length} baris data`, 'success', 'table');
     })
     .catch(err => {
-      setInfo('Gagal mengambil data dari Google Sheets. Cek koneksi internet.', 'error', 'exclamation-circle');
-      console.error(err);
+      setInfo('❌ Gagal mengambil data. Pastikan spreadsheet bersifat public.', 'error', 'exclamation-circle');
+      console.error('Error:', err);
     });
 }
 
@@ -878,48 +863,41 @@ function handleCSV(e){
   
   const reader = new FileReader();
   reader.onload = function(ev){
-    const lines = ev.target.result.trim().split('\n');
-    const h = lines[0].split(',').map(x=>x.trim().toLowerCase());
+    const lines = ev.target.result.trim().split('\n').filter(line => line.trim());
+    const headers = lines[0].split(',').map(h => h.trim().toUpperCase());
     
-    const dateIdx = h.findIndex(x=>x.includes('tanggal')||x.includes('tgl')||x.includes('date')||x.includes('periode'));
-    const grwInIdx = h.findIndex(x=>x.includes('grw')&&x.includes('informa'));
-    const grwElIdx = h.findIndex(x=>x.includes('grw')&&(x.includes('elektronik')||x.includes('elek')));
-    const grwSelIdx = h.findIndex(x=>x.includes('grw')&&x.includes('selma'));
-    const custInIdx = h.findIndex(x=>(x.includes('customer')||x.includes('cust'))&&x.includes('informa'));
-    const custElIdx = h.findIndex(x=>(x.includes('customer')||x.includes('cust'))&&(x.includes('elektronik')||x.includes('elek')));
-    const custSelIdx = h.findIndex(x=>(x.includes('customer')||x.includes('cust'))&&x.includes('selma'));
+    const dateIdx = headers.findIndex(h => h.includes('TANGGAL'));
+    const grwInIdx = headers.findIndex(h => h.includes('GRW') && h.includes('INFORMA'));
+    const grwElIdx = headers.findIndex(h => h.includes('GRW') && h.includes('ELEK'));
+    const grwSelIdx = headers.findIndex(h => h.includes('GRW') && h.includes('SELMA'));
+    const custInIdx = headers.findIndex(h => h.includes('CUST') && h.includes('INFORMA'));
+    const custElIdx = headers.findIndex(h => h.includes('CUST') && h.includes('ELEK'));
+    const custSelIdx = headers.findIndex(h => h.includes('CUST') && h.includes('SELMA'));
     
-    if(grwInIdx===-1||custInIdx===-1){
-      setInfo('Kolom tidak ditemukan. Pastikan ada kolom GRW dan Customer.', 'error', 'exclamation-circle');
+    if(grwInIdx === -1 || custInIdx === -1){
+      setInfo('❌ Kolom tidak sesuai. Gunakan template yang benar.', 'error', 'exclamation-circle');
       document.getElementById('csv-file').value = '';
       return;
     }
     
     const parsed = [];
-    for(let i=1; i<lines.length; i++){
-      const cols = lines[i].split(',').map(c=>c.trim().replace('%','').replace(/"/g,''));
+    for(let i = 1; i < lines.length; i++){
+      const cols = lines[i].split(',').map(c => c.trim());
       if(cols.length < 2 || !cols[0]) continue;
       
-      const gIn = parseFloat(cols[grwInIdx])||99.5;
-      const gEl = parseFloat(cols[grwElIdx])||99.5;
-      const gSel = parseFloat(cols[grwSelIdx])||99.5;
-      const cIn = parseFloat(cols[custInIdx])||99.5;
-      const cEl = parseFloat(cols[custElIdx])||99.5;
-      const cSel = parseFloat(cols[custSelIdx])||99.5;
-      
       parsed.push({
-        tgl: dateIdx>=0?cols[dateIdx]:`Baris ${i}`,
-        gi_g:gIn, ge_g:gEl, s_g:gSel,
-        gi_c:cIn, ge_c:cEl, s_c:cSel,
-        g_on:Math.round(Math.random()*1000+200),
-        g_dl:Math.round(Math.random()*8),
-        c_on:Math.round(Math.random()*700+300),
-        c_dl:Math.round(Math.random()*5)
+        tgl: dateIdx >= 0 ? cols[dateIdx] : `Baris ${i}`,
+        gi_g: parsePercentage(cols[grwInIdx]),
+        ge_g: parsePercentage(cols[grwElIdx]),
+        s_g: parsePercentage(cols[grwSelIdx]),
+        gi_c: parsePercentage(cols[custInIdx]),
+        ge_c: parsePercentage(cols[custElIdx]),
+        s_c: parsePercentage(cols[custSelIdx]),
       });
     }
     
-    if(parsed.length===0){
-      setInfo('Tidak ada data valid ditemukan.', 'error', 'exclamation-circle');
+    if(parsed.length === 0){
+      setInfo('❌ Tidak ada data valid.', 'error', 'exclamation-circle');
       document.getElementById('csv-file').value = '';
       return;
     }
@@ -929,7 +907,7 @@ function handleCSV(e){
     document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
     document.querySelectorAll('.tab-btn')[0].classList.add('active');
     renderAll(parsed);
-    setInfo(`CSV "${file.name}" dimuat berhasil: ${parsed.length} baris`, 'success', 'check-circle');
+    setInfo(`✅ CSV "${file.name}" berhasil dimuat: ${parsed.length} baris`, 'success', 'check-circle');
   };
   reader.readAsText(file);
 }
@@ -937,8 +915,8 @@ function handleCSV(e){
 function renderAll(data){
   renderMetrics(data);
   renderSplitCharts(currentView, data);
-  renderVolumeChart(data);
-  renderDelayChart(data);
+  renderAverageChart(data);
+  renderCategoryChart(data);
   renderTable(data);
 }
 
