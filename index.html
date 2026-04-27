@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard SLA Pengiriman</title>
+<title>Dashboard SLA Pengiriman - Weekly</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -302,6 +302,41 @@
     color: #fff;
   }
 
+  /* Week Filter */
+  .week-filter {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .week-filter-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text2);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .week-select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .week-select:hover {
+    border-color: var(--border2);
+  }
+  .week-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(79, 142, 247, 0.1);
+  }
+
   /* Two-column layout */
   .two-col {
     display: grid;
@@ -350,6 +385,13 @@
   }
   tbody tr:last-child td { border-bottom: none; }
   tbody tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* Highlight untuk nilai < 99% */
+  .cell-danger {
+    background-color: rgba(232, 92, 92, 0.15);
+    color: #ff9999;
+    font-weight: 600;
+  }
 
   /* Footer */
   .footer {
@@ -416,6 +458,10 @@
     .metrics-grid {
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     }
+    .week-filter {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
 </style>
 </head>
@@ -426,14 +472,14 @@
     <div class="brand-dot"></div>
     <span class="brand-name">SLA Monitor</span>
   </div>
-  <div class="header-meta">APRIL 2026 · GRW & CUSTOMER</div>
+  <div class="header-meta">APRIL 2026 · GRW & CUSTOMER · WEEKLY</div>
   <div class="live-badge"><div class="live-dot"></div>Live</div>
 </header>
 
 <main class="main">
   <div class="page-header">
     <h1 class="page-title">Dashboard <span>SLA Pengiriman</span></h1>
-    <p class="page-desc">Monitoring real-time dari Google Sheets</p>
+    <p class="page-desc">Monitoring mingguan dari Google Sheets</p>
   </div>
 
   <div class="data-sources-container">
@@ -450,6 +496,13 @@
   </div>
 
   <div class="metrics-grid" id="metricsGrid"></div>
+
+  <div class="week-filter">
+    <span class="week-filter-label">Filter Minggu:</span>
+    <select class="week-select" id="weekSelect" onchange="handleWeekChange()">
+      <option value="">-- Pilih Minggu --</option>
+    </select>
+  </div>
 
   <div class="tabs">
     <button class="tab-btn active" onclick="setView('semua',this)">Semua</button>
@@ -515,10 +568,10 @@
 
   <div class="table-card">
     <div class="table-header">
-      <span class="chart-title">Data SLA Harian Lengkap</span>
+      <span class="chart-title">Data SLA Mingguan Lengkap</span>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <span class="badge badge-ok">≥90% Tercapai</span>
-        <span class="badge badge-warn">70–89% Cukup</span>
+        <span class="badge badge-ok">≥99% Sempurna</span>
+        <span class="badge badge-warn">70–98% Cukup</span>
         <span class="badge badge-bad">&lt;70% Perlu Tindakan</span>
       </div>
     </div>
@@ -526,7 +579,7 @@
       <table>
         <thead>
           <tr>
-            <th>Tanggal</th>
+            <th>Minggu</th>
             <th>GRW INFORMA</th>
             <th>GRW ELEK</th>
             <th>GRW SELMA</th>
@@ -545,7 +598,7 @@
 </main>
 
 <footer class="footer">
-  SLA MONITORING DASHBOARD · REAL-TIME DATA FROM GOOGLE SHEETS
+  SLA MONITORING DASHBOARD · WEEKLY DATA FROM GOOGLE SHEETS
 </footer>
 
 <script>
@@ -564,9 +617,17 @@ function avg3(a,b,c){return (a+b+c)/3;}
 function pct(v){return v.toFixed(2)+'%';}
 
 function badge(v){
-  if(v>=90) return `<span class="badge badge-ok">${pct(v)}</span>`;
+  if(v>=99) return `<span class="badge badge-ok">${pct(v)}</span>`;
   if(v>=70) return `<span class="badge badge-warn">${pct(v)}</span>`;
   return `<span class="badge badge-bad">${pct(v)}</span>`;
+}
+
+function cellBadge(v) {
+  const pctStr = pct(v);
+  if(v < 99) {
+    return `<span class="cell-danger">${pctStr}</span>`;
+  }
+  return `<span class="badge badge-ok">${pctStr}</span>`;
 }
 
 function renderMetrics(data){
@@ -692,7 +753,7 @@ function renderSplitCharts(view, data){
   grwChart = new Chart(document.getElementById('grwChart'), {
     type: 'line',
     data: {
-      labels: data.map(d => d.tgl),
+      labels: data.map(d => d.minggu),
       datasets: grwDs
     },
     options: chartOptions()
@@ -709,7 +770,7 @@ function renderSplitCharts(view, data){
   custChart = new Chart(document.getElementById('custChart'), {
     type: 'line',
     data: {
-      labels: data.map(d => d.tgl),
+      labels: data.map(d => d.minggu),
       datasets: custDs
     },
     options: chartOptions()
@@ -724,7 +785,7 @@ function renderAverageChart(data){
   avgChart = new Chart(document.getElementById('avgChart'), {
     type: 'line',
     data: {
-      labels: data.map(d => d.tgl),
+      labels: data.map(d => d.minggu),
       datasets: [
         {
           label: 'GRW Avg',
@@ -761,8 +822,8 @@ function renderDistributionChart(data){
   });
   
   const ranges = {
-    '90-100%': allValues.filter(v => v >= 90).length,
-    '70-89%': allValues.filter(v => v >= 70 && v < 90).length,
+    '99-100%': allValues.filter(v => v >= 99).length,
+    '70-98%': allValues.filter(v => v >= 70 && v < 99).length,
     '50-69%': allValues.filter(v => v >= 50 && v < 70).length,
     '<50%': allValues.filter(v => v < 50).length
   };
@@ -802,22 +863,106 @@ function renderTable(data){
     const custAvg = avg3(d.cust_in, d.cust_el, d.cust_sel);
     const overall = avg2(grwAvg, custAvg);
     return `<tr>
-      <td>${d.tgl}</td>
-      <td>${badge(d.grw_in)}</td>
-      <td>${badge(d.grw_el)}</td>
-      <td>${badge(d.grw_sel)}</td>
-      <td>${badge(d.cust_in)}</td>
-      <td>${badge(d.cust_el)}</td>
-      <td>${badge(d.cust_sel)}</td>
-      <td><strong>${pct(grwAvg)}</strong></td>
-      <td><strong>${pct(custAvg)}</strong></td>
-      <td><strong>${pct(overall)}</strong></td>
+      <td>${d.minggu}</td>
+      <td>${cellBadge(d.grw_in)}</td>
+      <td>${cellBadge(d.grw_el)}</td>
+      <td>${cellBadge(d.grw_sel)}</td>
+      <td>${cellBadge(d.cust_in)}</td>
+      <td>${cellBadge(d.cust_el)}</td>
+      <td>${cellBadge(d.cust_sel)}</td>
+      <td><strong>${cellBadge(grwAvg).replace('class="badge', 'style="display:inline-block;" class="badge')}</strong></td>
+      <td><strong>${cellBadge(custAvg).replace('class="badge', 'style="display:inline-block;" class="badge')}</strong></td>
+      <td><strong>${cellBadge(overall).replace('class="badge', 'style="display:inline-block;" class="badge')}</strong></td>
     </tr>`;
   }).join('');
 }
 
 let currentData = [];
+let allRawData = [];
 let currentView = 'semua';
+let currentWeek = null;
+
+function getWeekNumber(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+  return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+}
+
+function getWeekLabel(date) {
+  const weekNum = getWeekNumber(date);
+  const year = date.getFullYear();
+  return `W${weekNum}-${year}`;
+}
+
+function parseDate(dateStr) {
+  const formats = [
+    /(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/,
+    /(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/
+  ];
+  
+  for(let fmt of formats) {
+    const match = dateStr.match(fmt);
+    if(match) {
+      let day, month, year;
+      if(match[3].length === 4) {
+        [, month, day, year] = match;
+      } else {
+        [, day, month, year] = match;
+      }
+      return new Date(parseInt(year), parseInt(month)-1, parseInt(day));
+    }
+  }
+  return null;
+}
+
+function groupByWeek(data) {
+  const grouped = {};
+  data.forEach(d => {
+    const date = parseDate(d.tgl);
+    if(!date) return;
+    const weekLabel = getWeekLabel(date);
+    
+    if(!grouped[weekLabel]) {
+      grouped[weekLabel] = [];
+    }
+    grouped[weekLabel].push(d);
+  });
+  
+  return grouped;
+}
+
+function aggregateWeekData(weekData) {
+  const agg = {
+    minggu: weekData[0].tgl.split(' ')[0],
+    grw_in: 0,
+    grw_el: 0,
+    grw_sel: 0,
+    cust_in: 0,
+    cust_el: 0,
+    cust_sel: 0
+  };
+  
+  weekData.forEach(d => {
+    agg.grw_in += d.grw_in;
+    agg.grw_el += d.grw_el;
+    agg.grw_sel += d.grw_sel;
+    agg.cust_in += d.cust_in;
+    agg.cust_el += d.cust_el;
+    agg.cust_sel += d.cust_sel;
+  });
+  
+  const len = weekData.length;
+  agg.grw_in /= len;
+  agg.grw_el /= len;
+  agg.grw_sel /= len;
+  agg.cust_in /= len;
+  agg.cust_el /= len;
+  agg.cust_sel /= len;
+  
+  return agg;
+}
 
 function setView(v, el){
   currentView = v;
@@ -844,6 +989,34 @@ function renderAll(data){
   renderTable(data);
 }
 
+function populateWeekSelect(weeks) {
+  const select = document.getElementById('weekSelect');
+  select.innerHTML = '<option value="">-- Semua Minggu --</option>';
+  weeks.forEach(week => {
+    const option = document.createElement('option');
+    option.value = week;
+    option.textContent = week;
+    select.appendChild(option);
+  });
+}
+
+function handleWeekChange() {
+  const select = document.getElementById('weekSelect');
+  const selectedWeek = select.value;
+  
+  if(selectedWeek === '') {
+    currentData = allRawData;
+    currentWeek = null;
+  } else {
+    const grouped = groupByWeek(allRawData);
+    const weekData = grouped[selectedWeek] || [];
+    currentData = [aggregateWeekData(weekData)];
+    currentWeek = selectedWeek;
+  }
+  
+  renderAll(currentData);
+}
+
 function loadGoogleSheets(el){
   document.querySelectorAll('.source-card').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
@@ -863,7 +1036,6 @@ function loadGoogleSheets(el){
       const headers = lines[0].split(',').map(h => h.trim().toUpperCase());
       console.log('Headers:', headers);
       
-      // Cari index sesuai header sheet Anda
       const dateIdx = headers.findIndex(h => h.includes('TANGGAL'));
       const grwInIdx = headers.findIndex(h => h.includes('GRW') && h.includes('INFORMA'));
       const grwElIdx = headers.findIndex(h => h.includes('GRW') && h.includes('ELEK'));
@@ -901,12 +1073,19 @@ function loadGoogleSheets(el){
         return;
       }
       
-      currentData = parsed;
+      allRawData = parsed;
+      const grouped = groupByWeek(parsed);
+      const weeks = Object.keys(grouped).sort();
+      const weeklyData = weeks.map(week => aggregateWeekData(grouped[week]));
+      
+      currentData = weeklyData;
       currentView = 'semua';
       document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-btn')[0].classList.add('active');
-      renderAll(parsed);
-      setInfo(`✅ Google Sheets dimuat: ${parsed.length} baris data`, 'success', 'table');
+      
+      populateWeekSelect(weeks);
+      renderAll(weeklyData);
+      setInfo(`✅ Google Sheets dimuat: ${parsed.length} baris harian, ${weeks.length} minggu data`, 'success', 'table');
     })
     .catch(err => {
       setInfo('❌ Gagal mengambil data. Pastikan spreadsheet bersifat public/dapat diakses.', 'error', 'exclamation-circle');
