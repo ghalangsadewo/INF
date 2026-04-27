@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard SLA Pengiriman — April 2026</title>
+<title>Dashboard SLA Pengiriman</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -142,12 +142,10 @@
     height: 2px;
     border-radius: 2px 2px 0 0;
   }
-  .source-card.local::before { background: var(--accent); }
   .source-card.sheets::before { background: var(--accent2); }
-  .source-card.upload::before { background: var(--purple); }
   .source-card.active {
-    border-color: var(--accent);
-    background: rgba(79,142,247,0.05);
+    border-color: var(--accent2);
+    background: rgba(52,201,142,0.05);
   }
   .source-card:hover {
     border-color: var(--border2);
@@ -157,10 +155,8 @@
     font-size: 24px;
     margin-bottom: 8px;
     display: block;
+    color: var(--accent2);
   }
-  .source-card.local .source-icon { color: var(--accent); }
-  .source-card.sheets .source-icon { color: var(--accent2); }
-  .source-card.upload .source-icon { color: var(--purple); }
   .source-title {
     font-size: 12px;
     font-weight: 600;
@@ -392,7 +388,6 @@
     flex: 1;
   }
 
-  /* Spinner */
   .spinner {
     display: inline-block;
     width: 12px;
@@ -406,10 +401,6 @@
     to { transform: rotate(360deg); }
   }
 
-  /* File input */
-  #csv-file { display: none; }
-
-  /* Link styling */
   a {
     color: var(--accent);
     text-decoration: none;
@@ -418,7 +409,6 @@
     text-decoration: underline;
   }
 
-  /* Responsive */
   @media (max-width: 700px) {
     .data-sources-container {
       grid-template-columns: 1fr;
@@ -443,51 +433,39 @@
 <main class="main">
   <div class="page-header">
     <h1 class="page-title">Dashboard <span>SLA Pengiriman</span></h1>
-    <p class="page-desc">Monitoring harian pencapaian SLA · INFORMA · INFORMA ELEKTRONIK · SELMA</p>
+    <p class="page-desc">Monitoring real-time dari Google Sheets</p>
   </div>
 
-  <!-- Data Source Selection -->
   <div class="data-sources-container">
-    <div class="source-card local active" onclick="loadLocalData(this)">
-      <i class="fas fa-database source-icon"></i>
-      <div class="source-title">Data Lokal</div>
-      <div class="source-desc">Gunakan data default April 2026</div>
-    </div>
-    
-    <div class="source-card sheets" onclick="loadGoogleSheets(this)">
+    <div class="source-card sheets active" onclick="loadGoogleSheets(this)">
       <i class="fas fa-table source-icon"></i>
       <div class="source-title">Google Sheets</div>
-      <div class="source-desc">Real-time dari spreadsheet</div>
-    </div>
-    
-    <div class="source-card upload" onclick="document.getElementById('csv-file').click()">
-      <i class="fas fa-cloud-upload-alt source-icon"></i>
-      <div class="source-title">Upload CSV</div>
-      <div class="source-desc">Upload file dari komputer</div>
+      <div class="source-desc">Load data real-time</div>
     </div>
   </div>
-
-  <input type="file" id="csv-file" accept=".csv" onchange="handleCSV(event)">
   
   <div class="info-bar default" id="infoBar">
     <div class="info-icon"><i class="fas fa-info-circle"></i></div>
-    <div class="info-text">Menampilkan data lokal April 2026. Pilih sumber data lain untuk update.</div>
+    <div class="info-text">Memuat data dari Google Sheets...</div>
   </div>
 
   <div class="metrics-grid" id="metricsGrid"></div>
 
   <div class="tabs">
     <button class="tab-btn active" onclick="setView('semua',this)">Semua</button>
-    <button class="tab-btn" onclick="setView('INFORMA',this)">INFORMA</button>
-    <button class="tab-btn" onclick="setView('INFORMA ELEKTRONIK',this)">INFO. ELEKTRONIK</button>
-    <button class="tab-btn" onclick="setView('SELMA',this)">SELMA</button>
+    <button class="tab-btn" onclick="setView('GRW INFORMA',this)">GRW INFORMA</button>
+    <button class="tab-btn" onclick="setView('GRW ELEK',this)">GRW ELEK</button>
+    <button class="tab-btn" onclick="setView('GRW SELMA',this)">GRW SELMA</button>
+    <button class="tab-btn" onclick="setView('CUST INFORMA',this)">CUST INFORMA</button>
+    <button class="tab-btn" onclick="setView('CUST ELEK',this)">CUST ELEK</button>
+    <button class="tab-btn" onclick="setView('CUST SELMA',this)">CUST SELMA</button>
   </div>
 
   <!-- GRW Chart -->
   <div class="chart-card">
     <div class="chart-header">
       <div>
-        <span class="chart-title" id="grwChartTitle">Tren SLA GRW — Semua Kategori</span>
+        <span class="chart-title" id="grwChartTitle">Tren SLA GRW</span>
         <div style="margin-top:4px;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">TYPE: GRW</div>
       </div>
       <div class="legend" id="grwLegend"></div>
@@ -501,7 +479,7 @@
   <div class="chart-card">
     <div class="chart-header">
       <div>
-        <span class="chart-title" id="custChartTitle">Tren SLA Customer — Semua Kategori</span>
+        <span class="chart-title" id="custChartTitle">Tren SLA Customer</span>
         <div style="margin-top:4px;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">TYPE: CUSTOMER</div>
       </div>
       <div class="legend" id="custLegend"></div>
@@ -514,38 +492,34 @@
   <div class="two-col">
     <div class="chart-card">
       <div class="chart-header">
-        <span class="chart-title">Rata-rata SLA Harian</span>
+        <span class="chart-title">Perbandingan GRW vs Customer</span>
         <div class="legend">
-          <div class="legend-item"><div class="legend-dot" style="background:#4f8ef7"></div>GRW</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#34c98e"></div>Customer</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#4f8ef7"></div>GRW Avg</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#34c98e"></div>Customer Avg</div>
         </div>
       </div>
       <div style="position:relative;width:100%;height:240px;">
         <canvas id="avgChart"></canvas>
       </div>
     </div>
+
     <div class="chart-card">
       <div class="chart-header">
-        <span class="chart-title">Perbandingan Kategori</span>
-        <div class="legend">
-          <div class="legend-item"><div class="legend-dot" style="background:#4f8ef7"></div>INFORMA</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#9b7fe8"></div>INFO.ELEK</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#e8a34f"></div>SELMA</div>
-        </div>
+        <span class="chart-title">Distribusi SLA Kategori</span>
       </div>
       <div style="position:relative;width:100%;height:240px;">
-        <canvas id="categoryChart"></canvas>
+        <canvas id="distChart"></canvas>
       </div>
     </div>
   </div>
 
   <div class="table-card">
     <div class="table-header">
-      <span class="chart-title">Detail Pencapaian SLA Harian</span>
+      <span class="chart-title">Data SLA Harian Lengkap</span>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <span class="badge badge-ok">≥95% Tercapai</span>
-        <span class="badge badge-warn">80–94% Cukup</span>
-        <span class="badge badge-bad">&lt;80% Perlu Tindakan</span>
+        <span class="badge badge-ok">≥90% Tercapai</span>
+        <span class="badge badge-warn">70–89% Cukup</span>
+        <span class="badge badge-bad">&lt;70% Perlu Tindakan</span>
       </div>
     </div>
     <div class="table-wrap">
@@ -554,13 +528,14 @@
           <tr>
             <th>Tanggal</th>
             <th>GRW INFORMA</th>
-            <th>GRW INFO.ELEK</th>
+            <th>GRW ELEK</th>
             <th>GRW SELMA</th>
-            <th>Avg GRW</th>
             <th>CUST INFORMA</th>
-            <th>CUST INFO.ELEK</th>
+            <th>CUST ELEK</th>
             <th>CUST SELMA</th>
-            <th>Avg Customer</th>
+            <th>Avg GRW</th>
+            <th>Avg CUST</th>
+            <th>Overall Avg</th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -570,197 +545,288 @@
 </main>
 
 <footer class="footer">
-  SLA MONITORING DASHBOARD · DATA REAL-TIME FROM GOOGLE SHEETS
+  SLA MONITORING DASHBOARD · REAL-TIME DATA FROM GOOGLE SHEETS
 </footer>
 
 <script>
-// Sample data untuk testing
-const DATA = [
-  {tgl:'01/04',gi_g:100,ge_g:41,s_g:84,gi_c:100,ge_c:26,s_c:71},
-  {tgl:'02/04',gi_g:100,ge_g:9,s_g:11,gi_c:100,ge_c:26,s_c:63},
-  {tgl:'03/04',gi_g:100,ge_g:13,s_g:50,gi_c:100,ge_c:12,s_c:60},
-  {tgl:'04/04',gi_g:100,ge_g:7,s_g:37,gi_c:100,ge_c:14,s_c:100},
-  {tgl:'05/04',gi_g:100,ge_g:18,s_g:100,gi_c:100,ge_c:31,s_c:92},
-  {tgl:'06/04',gi_g:100,ge_g:19,s_g:59,gi_c:100,ge_c:43,s_c:100},
-];
-
-// URL Google Sheets yang sudah diperbaiki
+// URL Google Sheets (disesuaikan dengan link Anda)
 const SHEETS_EXPORT_URL = 'https://docs.google.com/spreadsheets/d/1DAOcHYS2n8jja_AbYW9A2_ncfmefbMEWZ_OkANtkkT8/export?format=csv&gid=0';
 
 function parsePercentage(str) {
   if (!str) return 0;
-  const num = parseFloat(str.toString().replace('%', '').trim());
+  const cleaned = str.toString().replace('%', '').replace(/"/g, '').trim();
+  const num = parseFloat(cleaned);
   return isNaN(num) ? 0 : num;
 }
 
+function avg2(a,b){return (a+b)/2;}
 function avg3(a,b,c){return (a+b+c)/3;}
 function pct(v){return v.toFixed(2)+'%';}
+
 function badge(v){
-  if(v>=95) return `<span class="badge badge-ok">${pct(v)}</span>`;
-  if(v>=80) return `<span class="badge badge-warn">${pct(v)}</span>`;
+  if(v>=90) return `<span class="badge badge-ok">${pct(v)}</span>`;
+  if(v>=70) return `<span class="badge badge-warn">${pct(v)}</span>`;
   return `<span class="badge badge-bad">${pct(v)}</span>`;
 }
 
 function renderMetrics(data){
-  const ga = data.map(d=>avg3(d.gi_g,d.ge_g,d.s_g));
-  const ca = data.map(d=>avg3(d.gi_c,d.ge_c,d.s_c));
-  const gAvg = (ga.reduce((a,b)=>a+b,0)/ga.length).toFixed(2);
-  const cAvg = (ca.reduce((a,b)=>a+b,0)/ca.length).toFixed(2);
-  const gMin = Math.min(...ga).toFixed(2);
-  const cMin = Math.min(...ca).toFixed(2);
-  const gMax = Math.max(...ga).toFixed(2);
-  const cMax = Math.max(...ca).toFixed(2);
+  const allGrw = [];
+  const allCust = [];
+  
+  data.forEach(d => {
+    allGrw.push(d.grw_in, d.grw_el, d.grw_sel);
+    allCust.push(d.cust_in, d.cust_el, d.cust_sel);
+  });
+
+  const gAvg = (allGrw.reduce((a,b)=>a+b,0)/allGrw.length).toFixed(2);
+  const cAvg = (allCust.reduce((a,b)=>a+b,0)/allCust.length).toFixed(2);
+  const gMax = Math.max(...allGrw).toFixed(2);
+  const cMax = Math.max(...allCust).toFixed(2);
+  const gMin = Math.min(...allGrw).toFixed(2);
+  const cMin = Math.min(...allCust).toFixed(2);
   
   document.getElementById('metricsGrid').innerHTML = `
     <div class="metric-card blue">
       <div class="metric-label">Rata-rata SLA GRW</div>
       <div class="metric-value">${gAvg}%</div>
-      <div class="metric-sub">${data.length} hari · semua kategori</div>
+      <div class="metric-sub">dari ${allGrw.length} data point</div>
     </div>
     <div class="metric-card green">
       <div class="metric-label">Rata-rata SLA Customer</div>
       <div class="metric-value">${cAvg}%</div>
-      <div class="metric-sub">${data.length} hari · semua kategori</div>
+      <div class="metric-sub">dari ${allCust.length} data point</div>
     </div>
     <div class="metric-card purple">
       <div class="metric-label">SLA Tertinggi GRW</div>
       <div class="metric-value">${gMax}%</div>
-      <div class="metric-sub">Performa terbaik bulan ini</div>
+      <div class="metric-sub">Performa terbaik</div>
     </div>
     <div class="metric-card amber">
       <div class="metric-label">SLA Terendah GRW</div>
       <div class="metric-value">${gMin}%</div>
-      <div class="metric-sub">Performa terburuk bulan ini</div>
+      <div class="metric-sub">Performa terburuk</div>
     </div>
     <div class="metric-card pink">
       <div class="metric-label">SLA Tertinggi Customer</div>
       <div class="metric-value">${cMax}%</div>
-      <div class="metric-sub">Performa terbaik bulan ini</div>
+      <div class="metric-sub">Performa terbaik</div>
     </div>
     <div class="metric-card danger">
       <div class="metric-label">SLA Terendah Customer</div>
       <div class="metric-value">${cMin}%</div>
-      <div class="metric-sub">Performa terburuk bulan ini</div>
+      <div class="metric-sub">Performa terburuk</div>
     </div>
   `;
 }
 
-let grwChart, custChart, avgChart, categoryChart;
+let grwChart, custChart, avgChart, distChart;
 
-const GRW_CATS = {
-  'semua':            [{key:'gi_g',label:'INFORMA',color:'#4f8ef7'},{key:'ge_g',label:'INFO.ELEK',color:'#9b7fe8'},{key:'s_g',label:'SELMA',color:'#e8a34f'}],
-  'INFORMA':          [{key:'gi_g',label:'INFORMA',color:'#4f8ef7'}],
-  'INFORMA ELEKTRONIK':[{key:'ge_g',label:'INFO.ELEK',color:'#9b7fe8'}],
-  'SELMA':            [{key:'s_g',label:'SELMA',color:'#e8a34f'}],
-};
-const CUST_CATS = {
-  'semua':            [{key:'gi_c',label:'INFORMA',color:'#34c98e'},{key:'ge_c',label:'INFO.ELEK',color:'#e87fa0'},{key:'s_c',label:'SELMA',color:'#6ec97e'}],
-  'INFORMA':          [{key:'gi_c',label:'INFORMA',color:'#34c98e'}],
-  'INFORMA ELEKTRONIK':[{key:'ge_c',label:'INFO.ELEK',color:'#e87fa0'}],
-  'SELMA':            [{key:'s_c',label:'SELMA',color:'#6ec97e'}],
-};
+const GRW_COLS = ['grw_in', 'grw_el', 'grw_sel'];
+const GRW_LABELS = ['INFORMA', 'ELEK', 'SELMA'];
+const GRW_COLORS = ['#4f8ef7', '#9b7fe8', '#e8a34f'];
 
-function makeLineDatasets(cats, data){
-  return cats.map(cfg=>({
-    label:cfg.label, data:data.map(d=>d[cfg.key]),
-    borderColor:cfg.color, backgroundColor:cfg.color+'18',
-    borderWidth:2.5, pointRadius:4, fill:true, tension:0.3
+const CUST_COLS = ['cust_in', 'cust_el', 'cust_sel'];
+const CUST_LABELS = ['INFORMA', 'ELEK', 'SELMA'];
+const CUST_COLORS = ['#34c98e', '#e87fa0', '#6ec97e'];
+
+function makeLineDatasets(cols, labels, colors, data){
+  return cols.map((col, i) => ({
+    label: labels[i],
+    data: data.map(d => d[col]),
+    borderColor: colors[i],
+    backgroundColor: colors[i] + '18',
+    borderWidth: 2.5,
+    pointRadius: 4,
+    fill: true,
+    tension: 0.3
   }));
 }
 
-function chartOptions(){ return {
-  responsive:true, maintainAspectRatio:false,
-  plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}%`}}},
-  scales:{
-    y:{min:0, max:100, ticks:{callback:v=>v+'%', font:{size:10}, color:'#555a6a'}, grid:{color:'rgba(255,255,255,0.04)'}, border:{color:'rgba(255,255,255,0.05)'}},
-    x:{ticks:{font:{size:9}, maxRotation:45, autoSkip:false, color:'#555a6a'}, grid:{display:false}, border:{color:'rgba(255,255,255,0.05)'}}
-  }
-};}
+function chartOptions(){
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}%`
+        }
+      }
+    },
+    scales: {
+      y: {
+        min: 0,
+        max: 100,
+        ticks: {
+          callback: v => v + '%',
+          font: { size: 10 },
+          color: '#555a6a'
+        },
+        grid: { color: 'rgba(255,255,255,0.04)' },
+        border: { color: 'rgba(255,255,255,0.05)' }
+      },
+      x: {
+        ticks: {
+          font: { size: 9 },
+          maxRotation: 45,
+          autoSkip: false,
+          color: '#555a6a'
+        },
+        grid: { display: false },
+        border: { color: 'rgba(255,255,255,0.05)' }
+      }
+    }
+  };
+}
 
 function renderSplitCharts(view, data){
-  const label = view==='semua'?'Semua Kategori':view;
-
-  const grwDs = makeLineDatasets(GRW_CATS[view]||GRW_CATS['semua'], data);
-  document.getElementById('grwChartTitle').textContent = `Tren SLA GRW — ${label}`;
-  document.getElementById('grwLegend').innerHTML = grwDs.map(d=>`<div class="legend-item"><div class="legend-dot" style="background:${d.borderColor}"></div>${d.label}</div>`).join('');
+  // GRW Chart
+  const grwDs = makeLineDatasets(GRW_COLS, GRW_LABELS, GRW_COLORS, data);
+  document.getElementById('grwChartTitle').textContent = `Tren SLA GRW — ${view === 'semua' ? 'Semua Kategori' : view}`;
+  document.getElementById('grwLegend').innerHTML = grwDs.map(d => 
+    `<div class="legend-item"><div class="legend-dot" style="background:${d.borderColor}"></div>${d.label}</div>`
+  ).join('');
+  
   if(grwChart) grwChart.destroy();
-  grwChart = new Chart(document.getElementById('grwChart'),{type:'line',data:{labels:data.map(d=>d.tgl),datasets:grwDs},options:chartOptions()});
+  grwChart = new Chart(document.getElementById('grwChart'), {
+    type: 'line',
+    data: {
+      labels: data.map(d => d.tgl),
+      datasets: grwDs
+    },
+    options: chartOptions()
+  });
 
-  const custDs = makeLineDatasets(CUST_CATS[view]||CUST_CATS['semua'], data);
-  document.getElementById('custChartTitle').textContent = `Tren SLA Customer — ${label}`;
-  document.getElementById('custLegend').innerHTML = custDs.map(d=>`<div class="legend-item"><div class="legend-dot" style="background:${d.borderColor}"></div>${d.label}</div>`).join('');
+  // Customer Chart
+  const custDs = makeLineDatasets(CUST_COLS, CUST_LABELS, CUST_COLORS, data);
+  document.getElementById('custChartTitle').textContent = `Tren SLA Customer — ${view === 'semua' ? 'Semua Kategori' : view}`;
+  document.getElementById('custLegend').innerHTML = custDs.map(d =>
+    `<div class="legend-item"><div class="legend-dot" style="background:${d.borderColor}"></div>${d.label}</div>`
+  ).join('');
+  
   if(custChart) custChart.destroy();
-  custChart = new Chart(document.getElementById('custChart'),{type:'line',data:{labels:data.map(d=>d.tgl),datasets:custDs},options:chartOptions()});
+  custChart = new Chart(document.getElementById('custChart'), {
+    type: 'line',
+    data: {
+      labels: data.map(d => d.tgl),
+      datasets: custDs
+    },
+    options: chartOptions()
+  });
 }
 
 function renderAverageChart(data){
   if(avgChart) avgChart.destroy();
-  const grwAvgs = data.map(d=>avg3(d.gi_g, d.ge_g, d.s_g));
-  const custAvgs = data.map(d=>avg3(d.gi_c, d.ge_c, d.s_c));
+  const grwAvgs = data.map(d => avg3(d.grw_in, d.grw_el, d.grw_sel));
+  const custAvgs = data.map(d => avg3(d.cust_in, d.cust_el, d.cust_sel));
   
-  avgChart = new Chart(document.getElementById('avgChart'),{
-    type:'line',
-    data:{
-      labels:data.map(d=>d.tgl),
-      datasets:[
-        {label:'GRW',data:grwAvgs,borderColor:'#4f8ef7',backgroundColor:'rgba(79,142,247,0.1)',borderWidth:2.5,pointRadius:4,fill:true,tension:0.3},
-        {label:'Customer',data:custAvgs,borderColor:'#34c98e',backgroundColor:'rgba(52,201,142,0.1)',borderWidth:2.5,pointRadius:4,fill:true,tension:0.3},
+  avgChart = new Chart(document.getElementById('avgChart'), {
+    type: 'line',
+    data: {
+      labels: data.map(d => d.tgl),
+      datasets: [
+        {
+          label: 'GRW Avg',
+          data: grwAvgs,
+          borderColor: '#4f8ef7',
+          backgroundColor: 'rgba(79,142,247,0.1)',
+          borderWidth: 2.5,
+          pointRadius: 4,
+          fill: true,
+          tension: 0.3
+        },
+        {
+          label: 'Customer Avg',
+          data: custAvgs,
+          borderColor: '#34c98e',
+          backgroundColor: 'rgba(52,201,142,0.1)',
+          borderWidth: 2.5,
+          pointRadius: 4,
+          fill: true,
+          tension: 0.3
+        }
       ]
     },
-    options:chartOptions()
+    options: chartOptions()
   });
 }
 
-function renderCategoryChart(data){
-  if(categoryChart) categoryChart.destroy();
-  const informa = data.map(d=>(d.gi_g+d.gi_c)/2);
-  const elek = data.map(d=>(d.ge_g+d.ge_c)/2);
-  const selma = data.map(d=>(d.s_g+d.s_c)/2);
+function renderDistributionChart(data){
+  if(distChart) distChart.destroy();
   
-  categoryChart = new Chart(document.getElementById('categoryChart'),{
-    type:'line',
-    data:{
-      labels:data.map(d=>d.tgl),
-      datasets:[
-        {label:'INFORMA',data:informa,borderColor:'#4f8ef7',backgroundColor:'rgba(79,142,247,0.1)',borderWidth:2.5,pointRadius:4,fill:true,tension:0.3},
-        {label:'INFO.ELEK',data:elek,borderColor:'#9b7fe8',backgroundColor:'rgba(155,127,232,0.1)',borderWidth:2.5,pointRadius:4,fill:true,tension:0.3},
-        {label:'SELMA',data:selma,borderColor:'#e8a34f',backgroundColor:'rgba(232,163,79,0.1)',borderWidth:2.5,pointRadius:4,fill:true,tension:0.3},
-      ]
+  const allValues = [];
+  data.forEach(d => {
+    allValues.push(d.grw_in, d.grw_el, d.grw_sel, d.cust_in, d.cust_el, d.cust_sel);
+  });
+  
+  const ranges = {
+    '90-100%': allValues.filter(v => v >= 90).length,
+    '70-89%': allValues.filter(v => v >= 70 && v < 90).length,
+    '50-69%': allValues.filter(v => v >= 50 && v < 70).length,
+    '<50%': allValues.filter(v => v < 50).length
+  };
+  
+  distChart = new Chart(document.getElementById('distChart'), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(ranges),
+      datasets: [{
+        data: Object.values(ranges),
+        backgroundColor: ['#34c98e', '#f5a623', '#e8a34f', '#e85c5c'],
+        borderColor: '#151820',
+        borderWidth: 2
+      }]
     },
-    options:chartOptions()
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom'
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.label}: ${ctx.parsed} data`
+          }
+        }
+      }
+    }
   });
 }
 
 function renderTable(data){
-  document.getElementById('tableBody').innerHTML = data.map(d=>{
-    const ga = avg3(d.gi_g,d.ge_g,d.s_g);
-    const ca = avg3(d.gi_c,d.ge_c,d.s_c);
+  document.getElementById('tableBody').innerHTML = data.map(d => {
+    const grwAvg = avg3(d.grw_in, d.grw_el, d.grw_sel);
+    const custAvg = avg3(d.cust_in, d.cust_el, d.cust_sel);
+    const overall = avg2(grwAvg, custAvg);
     return `<tr>
       <td>${d.tgl}</td>
-      <td>${badge(d.gi_g)}</td>
-      <td>${badge(d.ge_g)}</td>
-      <td>${badge(d.s_g)}</td>
-      <td><strong>${pct(ga)}</strong></td>
-      <td>${badge(d.gi_c)}</td>
-      <td>${badge(d.ge_c)}</td>
-      <td>${badge(d.s_c)}</td>
-      <td><strong>${pct(ca)}</strong></td>
+      <td>${badge(d.grw_in)}</td>
+      <td>${badge(d.grw_el)}</td>
+      <td>${badge(d.grw_sel)}</td>
+      <td>${badge(d.cust_in)}</td>
+      <td>${badge(d.cust_el)}</td>
+      <td>${badge(d.cust_sel)}</td>
+      <td><strong>${pct(grwAvg)}</strong></td>
+      <td><strong>${pct(custAvg)}</strong></td>
+      <td><strong>${pct(overall)}</strong></td>
     </tr>`;
   }).join('');
 }
 
-let currentData = DATA;
+let currentData = [];
 let currentView = 'semua';
-let currentSource = 'local';
 
 function setView(v, el){
   currentView = v;
-  document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   renderSplitCharts(v, currentData);
 }
 
-function setInfo(msg, type, icon='info-circle'){
+function setInfo(msg, type, icon = 'info-circle'){
   const el = document.getElementById('infoBar');
   const timestamp = new Date().toLocaleTimeString('id-ID');
   el.innerHTML = `
@@ -770,36 +836,34 @@ function setInfo(msg, type, icon='info-circle'){
   el.className = `info-bar ${type}`;
 }
 
-function loadLocalData(el){
-  document.querySelectorAll('.source-card').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  currentData = DATA;
-  currentSource = 'local';
-  renderAll(DATA);
-  setInfo('Data lokal April 2026 dimuat', 'success', 'database');
+function renderAll(data){
+  renderMetrics(data);
+  renderSplitCharts(currentView, data);
+  renderAverageChart(data);
+  renderDistributionChart(data);
+  renderTable(data);
 }
 
 function loadGoogleSheets(el){
-  document.querySelectorAll('.source-card').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.source-card').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
-  currentSource = 'sheets';
   setInfo(`Mengambil data dari Google Sheets...`, 'loading', 'spinner');
   
   fetch(SHEETS_EXPORT_URL)
     .then(r => r.text())
     .then(csv => {
+      console.log('Raw CSV:', csv);
       const lines = csv.trim().split('\n').filter(line => line.trim());
-      console.log('CSV Data:', csv);
       
       if(lines.length < 2){
-        setInfo('Sheet kosong atau tidak dapat diakses.', 'error', 'exclamation-circle');
+        setInfo('❌ Sheet kosong atau tidak dapat diakses.', 'error', 'exclamation-circle');
         return;
       }
       
       const headers = lines[0].split(',').map(h => h.trim().toUpperCase());
       console.log('Headers:', headers);
       
-      // Cari index kolom
+      // Cari index sesuai header sheet Anda
       const dateIdx = headers.findIndex(h => h.includes('TANGGAL'));
       const grwInIdx = headers.findIndex(h => h.includes('GRW') && h.includes('INFORMA'));
       const grwElIdx = headers.findIndex(h => h.includes('GRW') && h.includes('ELEK'));
@@ -808,120 +872,52 @@ function loadGoogleSheets(el){
       const custElIdx = headers.findIndex(h => h.includes('CUST') && h.includes('ELEK'));
       const custSelIdx = headers.findIndex(h => h.includes('CUST') && h.includes('SELMA'));
       
-      console.log('Column indices:', {dateIdx, grwInIdx, grwElIdx, grwSelIdx, custInIdx, custElIdx, custSelIdx});
+      console.log('Indices:', {dateIdx, grwInIdx, grwElIdx, grwSelIdx, custInIdx, custElIdx, custSelIdx});
       
-      if(grwInIdx === -1 || custInIdx === -1){
-        setInfo('❌ Kolom tidak ditemukan. Periksa header spreadsheet Anda.', 'error', 'exclamation-circle');
+      if(grwInIdx === -1 || grwElIdx === -1 || grwSelIdx === -1 || custInIdx === -1 || custElIdx === -1 || custSelIdx === -1){
+        setInfo('❌ Kolom tidak ditemukan. Periksa nama kolom di spreadsheet.', 'error', 'exclamation-circle');
+        console.error('Missing columns!');
         return;
       }
       
       const parsed = [];
       for(let i = 1; i < lines.length; i++){
         const cols = lines[i].split(',').map(c => c.trim());
-        if(cols.length < 2 || !cols[0]) continue;
+        if(!cols[0]) continue;
         
-        const row = {
-          tgl: dateIdx >= 0 ? cols[dateIdx] : `Baris ${i}`,
-          gi_g: parsePercentage(cols[grwInIdx]),
-          ge_g: parsePercentage(cols[grwElIdx]),
-          s_g: parsePercentage(cols[grwSelIdx]),
-          gi_c: parsePercentage(cols[custInIdx]),
-          ge_c: parsePercentage(cols[custElIdx]),
-          s_c: parsePercentage(cols[custSelIdx]),
-        };
-        
-        parsed.push(row);
-        console.log(`Row ${i}:`, row);
+        parsed.push({
+          tgl: dateIdx >= 0 ? cols[dateIdx] : `Data ${i}`,
+          grw_in: parsePercentage(cols[grwInIdx]),
+          grw_el: parsePercentage(cols[grwElIdx]),
+          grw_sel: parsePercentage(cols[grwSelIdx]),
+          cust_in: parsePercentage(cols[custInIdx]),
+          cust_el: parsePercentage(cols[custElIdx]),
+          cust_sel: parsePercentage(cols[custSelIdx])
+        });
       }
       
       if(parsed.length === 0){
-        setInfo('❌ Tidak ada data valid ditemukan di sheet.', 'error', 'exclamation-circle');
+        setInfo('❌ Tidak ada data valid.', 'error', 'exclamation-circle');
         return;
       }
       
       currentData = parsed;
       currentView = 'semua';
-      document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-btn')[0].classList.add('active');
       renderAll(parsed);
       setInfo(`✅ Google Sheets dimuat: ${parsed.length} baris data`, 'success', 'table');
     })
     .catch(err => {
-      setInfo('❌ Gagal mengambil data. Pastikan spreadsheet bersifat public.', 'error', 'exclamation-circle');
+      setInfo('❌ Gagal mengambil data. Pastikan spreadsheet bersifat public/dapat diakses.', 'error', 'exclamation-circle');
       console.error('Error:', err);
     });
 }
 
-function handleCSV(e){
-  const file = e.target.files[0];
-  if(!file) return;
-  
-  document.querySelectorAll('.source-card').forEach(c=>c.classList.remove('active'));
-  document.querySelectorAll('.source-card.upload')[0].classList.add('active');
-  currentSource = 'upload';
-  setInfo(`Membaca file "${file.name}"...`, 'loading', 'spinner');
-  
-  const reader = new FileReader();
-  reader.onload = function(ev){
-    const lines = ev.target.result.trim().split('\n').filter(line => line.trim());
-    const headers = lines[0].split(',').map(h => h.trim().toUpperCase());
-    
-    const dateIdx = headers.findIndex(h => h.includes('TANGGAL'));
-    const grwInIdx = headers.findIndex(h => h.includes('GRW') && h.includes('INFORMA'));
-    const grwElIdx = headers.findIndex(h => h.includes('GRW') && h.includes('ELEK'));
-    const grwSelIdx = headers.findIndex(h => h.includes('GRW') && h.includes('SELMA'));
-    const custInIdx = headers.findIndex(h => h.includes('CUST') && h.includes('INFORMA'));
-    const custElIdx = headers.findIndex(h => h.includes('CUST') && h.includes('ELEK'));
-    const custSelIdx = headers.findIndex(h => h.includes('CUST') && h.includes('SELMA'));
-    
-    if(grwInIdx === -1 || custInIdx === -1){
-      setInfo('❌ Kolom tidak sesuai. Gunakan template yang benar.', 'error', 'exclamation-circle');
-      document.getElementById('csv-file').value = '';
-      return;
-    }
-    
-    const parsed = [];
-    for(let i = 1; i < lines.length; i++){
-      const cols = lines[i].split(',').map(c => c.trim());
-      if(cols.length < 2 || !cols[0]) continue;
-      
-      parsed.push({
-        tgl: dateIdx >= 0 ? cols[dateIdx] : `Baris ${i}`,
-        gi_g: parsePercentage(cols[grwInIdx]),
-        ge_g: parsePercentage(cols[grwElIdx]),
-        s_g: parsePercentage(cols[grwSelIdx]),
-        gi_c: parsePercentage(cols[custInIdx]),
-        ge_c: parsePercentage(cols[custElIdx]),
-        s_c: parsePercentage(cols[custSelIdx]),
-      });
-    }
-    
-    if(parsed.length === 0){
-      setInfo('❌ Tidak ada data valid.', 'error', 'exclamation-circle');
-      document.getElementById('csv-file').value = '';
-      return;
-    }
-    
-    currentData = parsed;
-    currentView = 'semua';
-    document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.tab-btn')[0].classList.add('active');
-    renderAll(parsed);
-    setInfo(`✅ CSV "${file.name}" berhasil dimuat: ${parsed.length} baris`, 'success', 'check-circle');
-  };
-  reader.readAsText(file);
-}
-
-function renderAll(data){
-  renderMetrics(data);
-  renderSplitCharts(currentView, data);
-  renderAverageChart(data);
-  renderCategoryChart(data);
-  renderTable(data);
-}
-
-// Initial render
-renderAll(DATA);
+// Load otomatis saat halaman dibuka
+window.addEventListener('load', () => {
+  loadGoogleSheets(document.querySelector('.source-card'));
+});
 </script>
 </body>
 </html>
