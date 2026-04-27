@@ -32,12 +32,10 @@
   }
   .container { max-width: 1200px; margin: 0 auto; }
   
-  /* Header */
   .page-header { margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
   .page-title { font-size: 24px; font-weight: 600; }
   .page-title span { color: var(--accent); }
 
-  /* Source Cards */
   .sources { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 25px; }
   .card-src { 
     background: var(--surface); border: 1px solid var(--border); padding: 20px; border-radius: var(--radius);
@@ -49,7 +47,6 @@
   .card-src h4 { font-size: 14px; text-transform: uppercase; margin-bottom: 5px; }
   .card-src p { font-size: 12px; color: var(--text-dim); }
 
-  /* Info Bar */
   .info-bar { 
     padding: 12px 20px; border-radius: 8px; margin-bottom: 25px; font-size: 13px;
     display: flex; align-items: center; gap: 10px; font-family: 'DM Mono', monospace;
@@ -58,13 +55,11 @@
   .info-bar.success { background: rgba(63,185,80,0.1); color: var(--accent2); border: 1px solid var(--accent2); }
   .info-bar.error { background: rgba(248,81,73,0.1); color: var(--danger); border: 1px solid var(--danger); }
 
-  /* Metrics */
   .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
   .m-card { background: var(--surface); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border); }
   .m-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
   .m-value { font-size: 24px; font-family: 'DM Mono', monospace; font-weight: 600; }
 
-  /* Tabs */
   .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
   .tab-btn { 
     padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); 
@@ -72,7 +67,6 @@
   }
   .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-  /* Charts */
   .chart-container { background: var(--surface); padding: 25px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 20px; }
   .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
   .chart-title { font-size: 12px; color: var(--text-dim); text-transform: uppercase; font-weight: 600; }
@@ -80,7 +74,6 @@
   .leg-item { display: flex; align-items: center; gap: 5px; }
   .dot { width: 8px; height: 8px; border-radius: 2px; }
 
-  /* Table */
   .table-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
   table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
   th { background: var(--surface2); padding: 12px 15px; color: var(--text-dim); text-transform: uppercase; font-size: 10px; }
@@ -103,17 +96,17 @@
     <div class="card-src active" onclick="loadLocalData(this)">
       <i class="fas fa-database"></i>
       <h4>Data Lokal</h4>
-      <p>Gunakan contoh data bawaan</p>
+      <p>Simulasi April 2026</p>
     </div>
     <div class="card-src" onclick="fetchSheets(this)">
-      <i class="fas fa-file-csv"></i>
+      <i class="fas fa-file-excel"></i>
       <h4>Google Sheets</h4>
-      <p>Sinkronisasi Spreadsheet live</p>
+      <p>Sinkronisasi Spreadsheet Live</p>
     </div>
     <div class="card-src" onclick="document.getElementById('csv-file').click()">
       <i class="fas fa-cloud-upload-alt"></i>
       <h4>Upload CSV</h4>
-      <p>Import file dari komputer</p>
+      <p>Import dari komputer</p>
     </div>
   </div>
 
@@ -127,7 +120,7 @@
   <div class="metrics" id="metricsArea"></div>
 
   <div class="tabs">
-    <button class="tab-btn active" onclick="changeView('semua', this)">SEMUA</button>
+    <button class="tab-btn active" onclick="changeView('semua', this)">SEMUA UNIT</button>
     <button class="tab-btn" onclick="changeView('INFORMA', this)">INFORMA</button>
     <button class="tab-btn" onclick="changeView('ELEKTRONIK', this)">ELEKTRONIK</button>
     <button class="tab-btn" onclick="changeView('SELMA', this)">SELMA</button>
@@ -135,7 +128,7 @@
 
   <div class="chart-container">
     <div class="chart-header">
-      <div class="chart-title">Tren SLA GRW (%)</div>
+      <div class="chart-title">Tren Performa SLA GRW (%)</div>
       <div class="legend" id="grwLegend"></div>
     </div>
     <div style="height:300px"><canvas id="grwChart"></canvas></div>
@@ -143,7 +136,7 @@
 
   <div class="chart-container">
     <div class="chart-header">
-      <div class="chart-title">Tren SLA Customer (%)</div>
+      <div class="chart-title">Tren Performa SLA Customer (%)</div>
       <div class="legend" id="custLegend"></div>
     </div>
     <div style="height:300px"><canvas id="custChart"></canvas></div>
@@ -168,13 +161,13 @@
 </div>
 
 <script>
-// --- KONFIGURASI ---
-const SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/1DAOcHYS2n8jja_AbYW9A2_ncfmefbMEWZ_OkANtkkT8/export?format=csv&gid=0';
+// --- KONFIGURASI BARU ---
+// Link Google Sheets yang sudah diatur untuk ekspor CSV
+const SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/1_0EVn5X9GdqNnouzEsvfOaVS7UneXOitpfUTc6plcG4/export?format=csv&gid=0';
 
 let currentData = [];
 let charts = {};
 
-// --- MAPPING WARNA ---
 const COLORS = {
   informa: '#58a6ff',
   elektronik: '#bc8cff',
@@ -184,43 +177,42 @@ const COLORS = {
   cust_selma: '#7ee787'
 };
 
-// --- DATA AWAL (LOCAL) ---
 const LOCAL_DATA = [
-  {tgl:'01/04', gi_g:99.5, ge_g:100, s_g:100, gi_c:100, ge_c:100, s_c:100},
-  {tgl:'02/04', gi_g:98.2, ge_g:100, s_g:99.5, gi_c:99.1, ge_c:100, s_c:100},
-  {tgl:'03/04', gi_g:100, ge_g:98.5, s_g:100, gi_c:100, ge_c:100, s_c:99.2}
+  {tgl:'01/04', gi_g:99.75, ge_g:100, s_g:100, gi_c:100, ge_c:100, s_c:100},
+  {tgl:'02/04', gi_g:99.30, ge_g:100, s_g:100, gi_c:99.75, ge_c:100, s_c:100},
+  {tgl:'03/04', gi_g:99.67, ge_g:100, s_g:100, gi_c:100, ge_c:100, s_c:100}
 ];
 
-// --- FUNGSI PARSING DATA (Kunci Perbaikan Angka) ---
 function parseSLA(val) {
   if(!val) return 100;
-  // Ganti koma ke titik (format Indo) dan hapus simbol %
   let clean = val.toString().replace(/,/g, '.').replace(/%/g, '').trim();
   let num = parseFloat(clean);
   if(isNaN(num)) return 100;
-  return num > 100 ? 100 : num; // Cap maksimal 100%
+  return num > 100 ? 100 : (num < 0 ? 0 : num);
 }
 
-// --- FUNGSI AMBIL GOOGLE SHEETS ---
 async function fetchSheets(el) {
   updateInfo("Menghubungkan ke Google Sheets...", "loading");
   setActiveCard(el);
   
   try {
     const res = await fetch(SHEETS_CSV_URL);
+    if (!res.ok) throw new Error("Gagal fetch data");
     const text = await res.text();
     processCSV(text);
-    updateInfo("Data Google Sheets berhasil dimuat", "success");
+    updateInfo("Data Google Sheets berhasil disinkronisasi", "success");
   } catch (e) {
-    updateInfo("Gagal mengambil data. Pastikan link Sheets publik.", "error");
+    updateInfo("Gagal mengambil data. Pastikan spreadsheet publik (Anyone with the link can view).", "error");
+    console.error(e);
   }
 }
 
 function processCSV(csvText) {
-  const lines = csvText.split('\n').filter(l => l.trim() !== '');
-  const headers = lines[0].toLowerCase().split(',');
+  const lines = csvText.split('\n').map(line => line.split(','));
+  if (lines.length < 2) return;
 
-  // Cari index kolom secara fleksibel
+  const headers = lines[0].map(h => h.toLowerCase().trim());
+
   const idx = {
     tgl: headers.findIndex(h => h.includes('tgl') || h.includes('tanggal')),
     gi_g: headers.findIndex(h => h.includes('grw') && h.includes('informa')),
@@ -233,11 +225,11 @@ function processCSV(csvText) {
 
   const results = [];
   for(let i=1; i<lines.length; i++) {
-    const col = lines[i].split(',');
-    if(col.length < 2) continue;
+    const col = lines[i];
+    if(col.length < 2 || !col[idx.tgl]) continue;
 
     results.push({
-      tgl: col[idx.tgl] || `Data-${i}`,
+      tgl: col[idx.tgl].trim(),
       gi_g: parseSLA(col[idx.gi_g]),
       ge_g: parseSLA(col[idx.ge_g]),
       s_g: parseSLA(col[idx.s_g]),
@@ -247,13 +239,11 @@ function processCSV(csvText) {
     });
   }
   
-  // URUTKAN DATA BERDASARKAN TANGGAL (Penting agar grafik tidak acak)
   currentData = results;
   renderAll();
 }
 
-// --- FUNGSI GRAFIK ---
-function initChart(id, title, datasets) {
+function initChart(id, datasets) {
   if(charts[id]) charts[id].destroy();
   
   const ctx = document.getElementById(id).getContext('2d');
@@ -266,11 +256,10 @@ function initChart(id, title, datasets) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
       plugins: { legend: { display: false } },
       scales: {
         y: {
-          min: 90, // Tampilan fokus di 90% - 100%
+          min: 90, 
           max: 100.5,
           ticks: { color: '#8b949e', font: { family: 'DM Mono', size: 10 }, callback: v => v + '%' },
           grid: { color: 'rgba(240,246,252,0.05)' }
@@ -297,14 +286,16 @@ function renderAll() {
 }
 
 function updateMetrics() {
-  const avg = (arr) => (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(2);
+  if (currentData.length === 0) return;
+  const avg = (vals) => (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2);
+  
   const grwAvg = avg(currentData.map(d => (d.gi_g + d.ge_g + d.s_g)/3));
   const custAvg = avg(currentData.map(d => (d.gi_c + d.ge_c + d.s_c)/3));
 
   document.getElementById('metricsArea').innerHTML = `
-    <div class="m-card"><div class="m-label">Avg SLA GRW</div><div class="m-value">${grwAvg}%</div></div>
-    <div class="m-card"><div class="m-label">Avg SLA Customer</div><div class="m-value" style="color:var(--accent2)">${custAvg}%</div></div>
-    <div class="m-card"><div class="m-label">Total Record</div><div class="m-value">${currentData.length}</div></div>
+    <div class="m-card"><div class="m-label">Rata-rata SLA GRW</div><div class="m-value">${grwAvg}%</div></div>
+    <div class="m-card"><div class="m-label">Rata-rata SLA CUST</div><div class="m-value" style="color:var(--accent2)">${custAvg}%</div></div>
+    <div class="m-card"><div class="m-label">Total Data</div><div class="m-value">${currentData.length} Baris</div></div>
   `;
 }
 
@@ -317,57 +308,54 @@ function changeView(type, btn) {
   const grwSets = [];
   const custSets = [];
 
-  const addSet = (target, label, key, color) => {
-    target.push({
-      label: label,
-      data: currentData.map(d => d[key]),
-      borderColor: color,
-      backgroundColor: color + '22',
-      fill: true,
-      tension: 0.3,
-      borderWidth: 2,
-      pointRadius: 2
-    });
-  };
+  const createSet = (label, key, color) => ({
+    label: label,
+    data: currentData.map(d => d[key]),
+    borderColor: color,
+    backgroundColor: color + '15',
+    fill: true,
+    tension: 0.3,
+    borderWidth: 2,
+    pointRadius: 3
+  });
 
   if(type === 'semua' || type === 'INFORMA') {
-    addSet(grwSets, 'Informa', 'gi_g', COLORS.informa);
-    addSet(custSets, 'Informa', 'gi_c', COLORS.cust_informa);
+    grwSets.push(createSet('Informa', 'gi_g', COLORS.informa));
+    custSets.push(createSet('Informa', 'gi_c', COLORS.cust_informa));
   }
   if(type === 'semua' || type === 'ELEKTRONIK') {
-    addSet(grwSets, 'Elektronik', 'ge_g', COLORS.elektronik);
-    addSet(custSets, 'Elektronik', 'ge_c', COLORS.cust_elek);
+    grwSets.push(createSet('Elektronik', 'ge_g', COLORS.elektronik));
+    custSets.push(createSet('Elektronik', 'ge_c', COLORS.cust_elek));
   }
   if(type === 'semua' || type === 'SELMA') {
-    addSet(grwSets, 'Selma', 's_g', COLORS.selma);
-    addSet(custSets, 'Selma', 's_c', COLORS.cust_selma);
+    grwSets.push(createSet('Selma', 's_g', COLORS.selma));
+    custSets.push(createSet('Selma', 's_c', COLORS.cust_selma));
   }
 
-  initChart('grwChart', 'GRW', grwSets);
-  initChart('custChart', 'CUST', custSets);
+  initChart('grwChart', grwSets);
+  initChart('custChart', custSets);
   
-  // Legend
-  const buildLeg = (sets) => sets.map(s => `<div class="leg-item"><div class="dot" style="background:${s.borderColor}"></div>${s.label}</div>`).join('');
-  document.getElementById('grwLegend').innerHTML = buildLeg(grwSets);
-  document.getElementById('custLegend').innerHTML = buildLeg(custSets);
+  const leg = (sets) => sets.map(s => `<div class="leg-item"><div class="dot" style="background:${s.borderColor}"></div>${s.label}</div>`).join('');
+  document.getElementById('grwLegend').innerHTML = leg(grwSets);
+  document.getElementById('custLegend').innerHTML = leg(custSets);
 }
 
 function renderTable() {
-  const b = (v) => `<span class="badge ${v >= 99 ? 'badge-green' : 'badge-red'}">${v.toFixed(2)}%</span>`;
+  const badge = (v) => `<span class="badge ${v >= 99 ? 'badge-green' : 'badge-red'}">${v.toFixed(2)}%</span>`;
   document.getElementById('tableBody').innerHTML = currentData.map(d => `
     <tr>
       <td>${d.tgl}</td>
-      <td>${b(d.gi_g)}</td><td>${b(d.ge_g)}</td><td>${b(d.s_g)}</td>
-      <td>${b(d.gi_c)}</td><td>${b(d.ge_c)}</td><td>${b(d.s_c)}</td>
+      <td>${badge(d.gi_g)}</td><td>${badge(d.ge_g)}</td><td>${badge(d.s_g)}</td>
+      <td>${badge(d.gi_c)}</td><td>${badge(d.ge_c)}</td><td>${badge(d.s_c)}</td>
     </tr>
   `).join('');
 }
 
 function loadLocalData(el) {
   setActiveCard(el);
-  currentData = JSON.parse(JSON.stringify(LOCAL_DATA));
+  currentData = [...LOCAL_DATA];
   renderAll();
-  updateInfo("Menampilkan data simulasi lokal.", "success");
+  updateInfo("Menampilkan data lokal (Simulasi).", "success");
 }
 
 function setActiveCard(el) {
@@ -381,10 +369,10 @@ function handleUpload(e) {
   const reader = new FileReader();
   reader.onload = (ev) => processCSV(ev.target.result);
   reader.readAsText(file);
-  updateInfo(`File ${file.name} berhasil diimport`, "success");
+  updateInfo(`CSV "${file.name}" berhasil dimuat`, "success");
 }
 
-// Start
+// Inisialisasi awal
 loadLocalData(document.querySelector('.card-src'));
 </script>
 
