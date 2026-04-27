@@ -3,510 +3,390 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SLA Monitor — Pro Dashboard</title>
+<title>SLA Logistics Pro — Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
   :root {
-    --bg: #0d0f14;
-    --surface: #151820;
-    --surface2: #1c2030;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.12);
-    --text: #e8eaf0;
-    --text2: #8b90a0;
-    --text3: #555a6a;
-    --accent: #4f8ef7;
-    --accent2: #34c98e;
-    --warn: #f5a623;
-    --danger: #e85c5c;
-    --purple: #9b7fe8;
-    --pink: #e87fa0;
-    --amber: #e8a34f;
-    --green: #6ec97e;
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: rgba(240,246,252,0.1);
+    --text: #c9d1d9;
+    --text-dim: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --danger: #f85149;
+    --warn: #d29922;
+    --purple: #bc8cff;
     --radius: 12px;
-    --radius-sm: 8px;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: 'Sora', sans-serif;
     background: var(--bg);
     color: var(--text);
-    min-height: 100vh;
-    font-size: 14px;
-    line-height: 1.6;
-    overflow-x: hidden;
+    padding: 20px;
+    line-height: 1.5;
   }
-
+  .container { max-width: 1200px; margin: 0 auto; }
+  
   /* Header */
-  .header {
-    border-bottom: 1px solid var(--border);
-    padding: 0 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 60px;
-    position: sticky;
-    top: 0;
-    background: rgba(13,15,20,0.92);
-    backdrop-filter: blur(12px);
-    z-index: 100;
-  }
-  .header-brand { display: flex; align-items: center; gap: 10px; }
-  .brand-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(1.3);} }
-  .brand-name { font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
-
-  /* Main Layout */
-  .main { max-width: 1280px; margin: 0 auto; padding: 2rem; }
-  .page-header { margin-bottom: 2rem; }
-  .page-title { font-size: 28px; font-weight: 600; margin-bottom: 6px; }
+  .page-header { margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+  .page-title { font-size: 24px; font-weight: 600; }
   .page-title span { color: var(--accent); }
-  .page-desc { font-size: 13px; color: var(--text2); }
 
-  /* Source Selection */
-  .data-sources-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
-    margin-bottom: 2rem;
+  /* Source Cards */
+  .sources { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 25px; }
+  .card-src { 
+    background: var(--surface); border: 1px solid var(--border); padding: 20px; border-radius: var(--radius);
+    cursor: pointer; transition: 0.2s; position: relative;
   }
-  .source-card {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.25rem;
-    cursor: pointer;
-    transition: all 0.2s;
+  .card-src:hover { border-color: var(--accent); background: var(--surface2); }
+  .card-src.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .card-src i { font-size: 24px; margin-bottom: 10px; color: var(--accent); }
+  .card-src h4 { font-size: 14px; text-transform: uppercase; margin-bottom: 5px; }
+  .card-src p { font-size: 12px; color: var(--text-dim); }
+
+  /* Info Bar */
+  .info-bar { 
+    padding: 12px 20px; border-radius: 8px; margin-bottom: 25px; font-size: 13px;
+    display: flex; align-items: center; gap: 10px; font-family: 'DM Mono', monospace;
   }
-  .source-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-  .source-card.active { border-color: var(--accent); background: rgba(79,142,247,0.05); }
-  .source-icon { font-size: 20px; margin-bottom: 10px; color: var(--text2); }
-  .active .source-icon { color: var(--accent); }
-  .source-title { font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
-  .source-desc { font-size: 11px; color: var(--text3); }
+  .info-bar.loading { background: rgba(88,166,255,0.1); color: var(--accent); border: 1px solid var(--accent); }
+  .info-bar.success { background: rgba(63,185,80,0.1); color: var(--accent2); border: 1px solid var(--accent2); }
+  .info-bar.error { background: rgba(248,81,73,0.1); color: var(--danger); border: 1px solid var(--danger); }
 
   /* Metrics */
-  .metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
-    margin-bottom: 2rem;
-  }
-  .metric-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.25rem;
-    border-left: 4px solid var(--accent);
-  }
-  .metric-label { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; }
-  .metric-value { font-family: 'DM Mono', monospace; font-size: 24px; font-weight: 600; }
-  .metric-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
-
-  /* Charts */
-  .chart-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-  .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-  .chart-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; }
-  .legend { display: flex; gap: 15px; }
-  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text2); font-family: 'DM Mono', monospace; }
-  .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+  .m-card { background: var(--surface); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border); }
+  .m-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  .m-value { font-size: 24px; font-family: 'DM Mono', monospace; font-weight: 600; }
 
   /* Tabs */
-  .tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; }
-  .tab-btn {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    padding: 8px 16px;
-    border-radius: var(--radius-sm);
-    color: var(--text2);
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: 600;
-    transition: 0.2s;
+  .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+  .tab-btn { 
+    padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); 
+    background: var(--surface); color: var(--text-dim); cursor: pointer; font-size: 12px;
   }
   .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-  /* Grid for smaller charts */
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
-  @media (max-width: 850px) { .two-col { grid-template-columns: 1fr; } }
+  /* Charts */
+  .chart-container { background: var(--surface); padding: 25px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 20px; }
+  .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .chart-title { font-size: 12px; color: var(--text-dim); text-transform: uppercase; font-weight: 600; }
+  .legend { display: flex; gap: 15px; font-family: 'DM Mono', monospace; font-size: 11px; }
+  .leg-item { display: flex; align-items: center; gap: 5px; }
+  .dot { width: 8px; height: 8px; border-radius: 2px; }
 
   /* Table */
-  .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  thead th { background: var(--surface2); padding: 12px 15px; text-align: left; color: var(--text3); font-size: 10px; text-transform: uppercase; }
-  tbody td { padding: 12px 15px; border-bottom: 1px solid var(--border); font-family: 'DM Mono', monospace; }
-  
-  .badge { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
-  .badge-ok { background: rgba(52,201,142,0.1); color: var(--accent2); }
-  .badge-warn { background: rgba(245,166,35,0.1); color: var(--warn); }
-  .badge-bad { background: rgba(232,92,92,0.1); color: var(--danger); }
-
-  .info-bar { padding: 12px; border-radius: var(--radius-sm); margin-bottom: 1.5rem; font-size: 12px; display: flex; align-items: center; gap: 10px; }
-  .info-bar.default { background: rgba(79,142,247,0.1); border: 1px solid var(--accent); color: var(--accent); }
+  .table-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
+  th { background: var(--surface2); padding: 12px 15px; color: var(--text-dim); text-transform: uppercase; font-size: 10px; }
+  td { padding: 10px 15px; border-bottom: 1px solid var(--border); font-family: 'DM Mono', monospace; }
+  .badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; }
+  .badge-green { background: rgba(63,185,80,0.2); color: #7ee787; }
+  .badge-red { background: rgba(248,81,73,0.2); color: #ffa198; }
 
   #csv-file { display: none; }
 </style>
 </head>
 <body>
 
-<header class="header">
-  <div class="header-brand">
-    <div class="brand-dot"></div>
-    <span class="brand-name">SLA Logistics Monitoring</span>
-  </div>
-  <div style="font-family:'DM Mono'; font-size:11px; color:var(--text3)">RELEASE 2.1 — APR 2026</div>
-</header>
-
-<main class="main">
-  <div class="page-header">
+<div class="container">
+  <header class="page-header">
     <h1 class="page-title">Dashboard <span>SLA Pengiriman</span></h1>
-    <p class="page-desc">Monitoring performa pengiriman GRW dan Customer secara real-time.</p>
+  </header>
+
+  <div class="sources">
+    <div class="card-src active" onclick="loadLocalData(this)">
+      <i class="fas fa-database"></i>
+      <h4>Data Lokal</h4>
+      <p>Gunakan contoh data bawaan</p>
+    </div>
+    <div class="card-src" onclick="fetchSheets(this)">
+      <i class="fas fa-file-csv"></i>
+      <h4>Google Sheets</h4>
+      <p>Sinkronisasi Spreadsheet live</p>
+    </div>
+    <div class="card-src" onclick="document.getElementById('csv-file').click()">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <h4>Upload CSV</h4>
+      <p>Import file dari komputer</p>
+    </div>
   </div>
 
-  <div class="data-sources-container">
-    <div class="source-card active" onclick="loadLocalData(this)">
-      <i class="fas fa-database source-icon"></i>
-      <div class="source-title">Local Analytics</div>
-      <div class="source-desc">Data bawaan April 2026</div>
-    </div>
-    <div class="source-card" onclick="loadGoogleSheets(this)">
-      <i class="fas fa-file-excel source-icon"></i>
-      <div class="source-title">Cloud Sheets</div>
-      <div class="source-desc">Sinkronisasi Google Sheets</div>
-    </div>
-    <div class="source-card" onclick="document.getElementById('csv-file').click()">
-      <i class="fas fa-upload source-icon"></i>
-      <div class="source-title">Custom CSV</div>
-      <div class="source-desc">Upload file eksternal</div>
-    </div>
+  <input type="file" id="csv-file" accept=".csv" onchange="handleUpload(event)">
+
+  <div id="infoBar" class="info-bar success">
+    <i class="fas fa-check-circle"></i>
+    <span id="infoText">Sistem siap. Menampilkan data lokal.</span>
   </div>
 
-  <input type="file" id="csv-file" accept=".csv" onchange="handleCSV(event)">
-
-  <div class="info-bar default" id="infoBar">
-    <i class="fas fa-info-circle"></i>
-    <span id="infoText">Menampilkan data simulasi April 2026.</span>
-  </div>
-
-  <div class="metrics-grid" id="metricsGrid"></div>
+  <div class="metrics" id="metricsArea"></div>
 
   <div class="tabs">
-    <button class="tab-btn active" onclick="setView('semua',this)">ALL CATEGORIES</button>
-    <button class="tab-btn" onclick="setView('INFORMA',this)">INFORMA</button>
-    <button class="tab-btn" onclick="setView('INFORMA ELEKTRONIK',this)">ELECTRONICS</button>
-    <button class="tab-btn" onclick="setView('SELMA',this)">SELMA</button>
+    <button class="tab-btn active" onclick="changeView('semua', this)">SEMUA</button>
+    <button class="tab-btn" onclick="changeView('INFORMA', this)">INFORMA</button>
+    <button class="tab-btn" onclick="changeView('ELEKTRONIK', this)">ELEKTRONIK</button>
+    <button class="tab-btn" onclick="changeView('SELMA', this)">SELMA</button>
   </div>
 
-  <div class="chart-card">
+  <div class="chart-container">
     <div class="chart-header">
-      <span class="chart-title" id="grwChartTitle">Pencapaian SLA GRW (%)</span>
+      <div class="chart-title">Tren SLA GRW (%)</div>
       <div class="legend" id="grwLegend"></div>
     </div>
-    <div style="height: 320px;"><canvas id="grwChart"></canvas></div>
+    <div style="height:300px"><canvas id="grwChart"></canvas></div>
   </div>
 
-  <div class="chart-card">
+  <div class="chart-container">
     <div class="chart-header">
-      <span class="chart-title" id="custChartTitle">Pencapaian SLA Customer (%)</span>
+      <div class="chart-title">Tren SLA Customer (%)</div>
       <div class="legend" id="custLegend"></div>
     </div>
-    <div style="height: 320px;"><canvas id="custChart"></canvas></div>
-  </div>
-
-  <div class="two-col">
-    <div class="chart-card">
-      <div class="chart-header"><span class="chart-title">Volume Order Harian</span></div>
-      <div style="height: 250px;"><canvas id="volChart"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <div class="chart-header"><span class="chart-title">Total Delay (Cases)</span></div>
-      <div style="height: 250px;"><canvas id="delayChart"></canvas></div>
-    </div>
+    <div style="height:300px"><canvas id="custChart"></canvas></div>
   </div>
 
   <div class="table-card">
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Tanggal</th>
-            <th>GRW Informa</th>
-            <th>GRW Elek</th>
-            <th>GRW Selma</th>
-            <th>Cust Informa</th>
-            <th>Cust Elek</th>
-            <th>Cust Selma</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>GRW Informa</th>
+          <th>GRW Elek</th>
+          <th>GRW Selma</th>
+          <th>CUST Informa</th>
+          <th>CUST Elek</th>
+          <th>CUST Selma</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
   </div>
-</main>
+</div>
 
 <script>
-// --- DATA SIMULASI ---
-const DATA = [
-  {tgl:'01/04',gi_g:99.75,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:923,g_dl:2,c_on:552,c_dl:0},
-  {tgl:'02/04',gi_g:99.30,ge_g:100,s_g:100,gi_c:99.75,ge_c:100,s_c:100,g_on:305,g_dl:2,c_on:487,c_dl:1},
-  {tgl:'03/04',gi_g:99.67,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:366,g_dl:1,c_on:534,c_dl:0},
-  {tgl:'04/04',gi_g:99.63,ge_g:100,s_g:97.37,gi_c:100,ge_c:100,s_c:100,g_on:311,g_dl:2,c_on:564,c_dl:0},
-  {tgl:'05/04',gi_g:99.76,ge_g:100,s_g:98.51,gi_c:99.80,ge_c:100,s_c:100,g_on:569,g_dl:3,c_on:633,c_dl:1},
-  {tgl:'06/04',gi_g:99.62,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:337,g_dl:1,c_on:879,c_dl:0},
-  {tgl:'07/04',gi_g:99.56,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:286,g_dl:1,c_on:696,c_dl:0},
-  {tgl:'08/04',gi_g:99.90,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:1199,g_dl:1,c_on:610,c_dl:0},
-  {tgl:'09/04',gi_g:99.65,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:1270,g_dl:4,c_on:580,c_dl:0},
-  {tgl:'10/04',gi_g:99.59,ge_g:100,s_g:99.10,gi_c:100,ge_c:100,s_c:100,g_on:1365,g_dl:6,c_on:621,c_dl:0},
-  {tgl:'11/04',gi_g:99.85,ge_g:100,s_g:98.04,gi_c:99.73,ge_c:100,s_c:100,g_on:745,g_dl:2,c_on:433,c_dl:1},
-  {tgl:'12/04',gi_g:99.89,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:1007,g_dl:1,c_on:452,c_dl:0},
-  {tgl:'13/04',gi_g:100,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:684,g_dl:0,c_on:654,c_dl:0},
-  {tgl:'14/04',gi_g:100,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:97.65,g_on:781,g_dl:0,c_on:712,c_dl:2},
-  {tgl:'15/04',gi_g:100,ge_g:100,s_g:100,gi_c:99.78,ge_c:100,s_c:100,g_on:811,g_dl:0,c_on:557,c_dl:1},
-  {tgl:'16/04',gi_g:100,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:872,g_dl:0,c_on:541,c_dl:0},
-  {tgl:'17/04',gi_g:99.82,ge_g:100,s_g:100,gi_c:99.75,ge_c:94.44,s_c:100,g_on:600,g_dl:1,c_on:458,c_dl:2},
-  {tgl:'18/04',gi_g:100,ge_g:100,s_g:100,gi_c:99.76,ge_c:100,s_c:100,g_on:575,g_dl:0,c_on:485,c_dl:1},
-  {tgl:'19/04',gi_g:99.58,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:600,g_dl:2,c_on:442,c_dl:0},
-  {tgl:'20/04',gi_g:99.04,ge_g:100,s_g:98.95,gi_c:99.40,ge_c:100,s_c:100,g_on:424,g_dl:4,c_on:782,c_dl:4},
-  {tgl:'21/04',gi_g:99.59,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:262,g_dl:1,c_on:561,c_dl:0},
-  {tgl:'22/04',gi_g:99.49,ge_g:100,s_g:99.22,gi_c:100,ge_c:100,s_c:100,g_on:731,g_dl:4,c_on:516,c_dl:0},
-  {tgl:'23/04',gi_g:99.13,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:624,g_dl:4,c_on:420,c_dl:0},
-  {tgl:'24/04',gi_g:100,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:419,g_dl:0,c_on:449,c_dl:0},
-  {tgl:'25/04',gi_g:99.03,ge_g:100,s_g:100,gi_c:100,ge_c:100,s_c:100,g_on:713,g_dl:6,c_on:512,c_dl:0},
-];
+// --- KONFIGURASI ---
+const SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/1DAOcHYS2n8jja_AbYW9A2_ncfmefbMEWZ_OkANtkkT8/export?format=csv&gid=0';
 
-let grwChart, custChart, volChart, delayChart;
-let currentData = DATA;
+let currentData = [];
+let charts = {};
 
-// --- CONFIG GRAFIK ---
-const CONFIG = {
-  GRW: {
-    'semua': [
-      {key:'gi_g', label:'Informa', color:'#4f8ef7'},
-      {key:'ge_g', label:'Electronics', color:'#9b7fe8'},
-      {key:'s_g', label:'Selma', color:'#e8a34f'}
-    ],
-    'INFORMA': [{key:'gi_g', label:'Informa', color:'#4f8ef7'}],
-    'INFORMA ELEKTRONIK': [{key:'ge_g', label:'Electronics', color:'#9b7fe8'}],
-    'SELMA': [{key:'s_g', label:'Selma', color:'#e8a34f'}]
-  },
-  CUST: {
-    'semua': [
-      {key:'gi_c', label:'Informa', color:'#34c98e'},
-      {key:'ge_c', label:'Electronics', color:'#e87fa0'},
-      {key:'s_c', label:'Selma', color:'#6ec97e'}
-    ],
-    'INFORMA': [{key:'gi_c', label:'Informa', color:'#34c98e'}],
-    'INFORMA ELEKTRONIK': [{key:'ge_c', label:'Electronics', color:'#e87fa0'}],
-    'SELMA': [{key:'s_c', label:'Selma', color:'#6ec97e'}]
-  }
+// --- MAPPING WARNA ---
+const COLORS = {
+  informa: '#58a6ff',
+  elektronik: '#bc8cff',
+  selma: '#d29922',
+  cust_informa: '#3fb950',
+  cust_elek: '#f85149',
+  cust_selma: '#7ee787'
 };
 
-function getCommonOptions(data) {
-  // Hitung nilai minimum data untuk mengatur skala Y agar fluktuasi terlihat
-  let allValues = [];
-  data.forEach(d => {
-    ['gi_g','ge_g','s_g','gi_c','ge_c','s_c'].forEach(k => { if(d[k]) allValues.push(d[k]); });
-  });
-  const minVal = Math.floor(Math.min(...allValues)) - 1;
+// --- DATA AWAL (LOCAL) ---
+const LOCAL_DATA = [
+  {tgl:'01/04', gi_g:99.5, ge_g:100, s_g:100, gi_c:100, ge_c:100, s_c:100},
+  {tgl:'02/04', gi_g:98.2, ge_g:100, s_g:99.5, gi_c:99.1, ge_c:100, s_c:100},
+  {tgl:'03/04', gi_g:100, ge_g:98.5, s_g:100, gi_c:100, ge_c:100, s_c:99.2}
+];
 
-  return {
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: { mode: 'index', intersect: false },
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        backgroundColor: '#1c2030',
-        titleFont: { family: 'Sora', size: 13 },
-        bodyFont: { family: 'DM Mono', size: 12 },
-        padding: 12,
-        cornerRadius: 8,
-        callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}%` }
-      }
-    },
-    scales: {
-      y: {
-        min: minVal < 90 ? minVal : 90,
-        max: 100.5,
-        ticks: { color: '#555a6a', font: { size: 10 }, callback: (v) => v + '%' },
-        grid: { color: 'rgba(255,255,255,0.03)' }
-      },
-      x: {
-        ticks: { color: '#555a6a', font: { size: 10 } },
-        grid: { display: false }
-      }
-    }
+// --- FUNGSI PARSING DATA (Kunci Perbaikan Angka) ---
+function parseSLA(val) {
+  if(!val) return 100;
+  // Ganti koma ke titik (format Indo) dan hapus simbol %
+  let clean = val.toString().replace(/,/g, '.').replace(/%/g, '').trim();
+  let num = parseFloat(clean);
+  if(isNaN(num)) return 100;
+  return num > 100 ? 100 : num; // Cap maksimal 100%
+}
+
+// --- FUNGSI AMBIL GOOGLE SHEETS ---
+async function fetchSheets(el) {
+  updateInfo("Menghubungkan ke Google Sheets...", "loading");
+  setActiveCard(el);
+  
+  try {
+    const res = await fetch(SHEETS_CSV_URL);
+    const text = await res.text();
+    processCSV(text);
+    updateInfo("Data Google Sheets berhasil dimuat", "success");
+  } catch (e) {
+    updateInfo("Gagal mengambil data. Pastikan link Sheets publik.", "error");
+  }
+}
+
+function processCSV(csvText) {
+  const lines = csvText.split('\n').filter(l => l.trim() !== '');
+  const headers = lines[0].toLowerCase().split(',');
+
+  // Cari index kolom secara fleksibel
+  const idx = {
+    tgl: headers.findIndex(h => h.includes('tgl') || h.includes('tanggal')),
+    gi_g: headers.findIndex(h => h.includes('grw') && h.includes('informa')),
+    ge_g: headers.findIndex(h => h.includes('grw') && (h.includes('elek') || h.includes('info.elek'))),
+    s_g: headers.findIndex(h => h.includes('grw') && h.includes('selma')),
+    gi_c: headers.findIndex(h => h.includes('cust') && h.includes('informa')),
+    ge_c: headers.findIndex(h => h.includes('cust') && (h.includes('elek') || h.includes('info.elek'))),
+    s_c: headers.findIndex(h => h.includes('cust') && h.includes('selma'))
   };
-}
 
-function createGradient(ctx, color) {
-  const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-  gradient.addColorStop(0, color + '44');
-  gradient.addColorStop(1, color + '00');
-  return gradient;
-}
+  const results = [];
+  for(let i=1; i<lines.length; i++) {
+    const col = lines[i].split(',');
+    if(col.length < 2) continue;
 
-function renderSlaChart(canvasId, type, view, data) {
-  const ctx = document.getElementById(canvasId).getContext('2d');
-  const cats = CONFIG[type][view] || CONFIG[type]['semua'];
+    results.push({
+      tgl: col[idx.tgl] || `Data-${i}`,
+      gi_g: parseSLA(col[idx.gi_g]),
+      ge_g: parseSLA(col[idx.ge_g]),
+      s_g: parseSLA(col[idx.s_g]),
+      gi_c: parseSLA(col[idx.gi_c]),
+      ge_c: parseSLA(col[idx.ge_c]),
+      s_c: parseSLA(col[idx.s_c])
+    });
+  }
   
-  const datasets = cats.map(c => ({
-    label: c.label,
-    data: data.map(d => d[c.key]),
-    borderColor: c.color,
-    backgroundColor: createGradient(ctx, c.color),
-    borderWidth: 3,
-    pointRadius: 0,
-    pointHoverRadius: 6,
-    pointHoverBackgroundColor: c.color,
-    fill: true,
-    tension: 0.4
-  }));
+  // URUTKAN DATA BERDASARKAN TANGGAL (Penting agar grafik tidak acak)
+  currentData = results;
+  renderAll();
+}
 
-  const chartInstance = type === 'GRW' ? grwChart : custChart;
-  if(chartInstance) chartInstance.destroy();
-
-  const newChart = new Chart(ctx, {
+// --- FUNGSI GRAFIK ---
+function initChart(id, title, datasets) {
+  if(charts[id]) charts[id].destroy();
+  
+  const ctx = document.getElementById(id).getContext('2d');
+  charts[id] = new Chart(ctx, {
     type: 'line',
-    data: { labels: data.map(d => d.tgl), datasets },
-    options: getCommonOptions(data)
-  });
-
-  if(type === 'GRW') grwChart = newChart; else custChart = newChart;
-
-  // Render Legend
-  const legendId = type === 'GRW' ? 'grwLegend' : 'custLegend';
-  document.getElementById(legendId).innerHTML = datasets.map(ds => `
-    <div class="legend-item">
-      <div class="legend-dot" style="background:${ds.borderColor}"></div>
-      ${ds.label}
-    </div>
-  `).join('');
-}
-
-function renderVolumeChart(data) {
-  const ctx = document.getElementById('volChart').getContext('2d');
-  if(volChart) volChart.destroy();
-  volChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: data.map(d => d.tgl),
-      datasets: [
-        { label: 'GRW', data: data.map(d => d.g_on), backgroundColor: '#4f8ef7' },
-        { label: 'Customer', data: data.map(d => d.c_on), backgroundColor: '#34c98e' }
-      ]
+    data: { 
+      labels: currentData.map(d => d.tgl),
+      datasets: datasets 
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
       plugins: { legend: { display: false } },
       scales: {
-        y: { stacked: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#555a6a' } },
-        x: { stacked: true, grid: { display: false }, ticks: { color: '#555a6a' } }
+        y: {
+          min: 90, // Tampilan fokus di 90% - 100%
+          max: 100.5,
+          ticks: { color: '#8b949e', font: { family: 'DM Mono', size: 10 }, callback: v => v + '%' },
+          grid: { color: 'rgba(240,246,252,0.05)' }
+        },
+        x: {
+          ticks: { color: '#8b949e', font: { family: 'DM Mono', size: 10 } },
+          grid: { display: false }
+        }
       }
     }
   });
 }
 
-function renderDelayChart(data) {
-  const ctx = document.getElementById('delayChart').getContext('2d');
-  if(delayChart) delayChart.destroy();
-  delayChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: data.map(d => d.tgl),
-      datasets: [{ label: 'Total Delay', data: data.map(d => d.g_dl + d.c_dl), backgroundColor: '#e85c5c', borderRadius: 4 }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#555a6a', stepSize: 1 } },
-        x: { grid: { display: false }, ticks: { color: '#555a6a' } }
-      }
-    }
-  });
+function updateInfo(msg, type) {
+  const bar = document.getElementById('infoBar');
+  bar.className = `info-bar ${type}`;
+  document.getElementById('infoText').innerText = msg;
 }
 
-// --- UTILS & CORE ---
-
-function setView(view, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderSlaChart('grwChart', 'GRW', view, currentData);
-  renderSlaChart('custChart', 'CUST', view, currentData);
+function renderAll() {
+  updateMetrics();
+  renderTable();
+  changeView('semua');
 }
 
-function updateMetrics(data) {
-  const avgG = (data.reduce((a, b) => a + (b.gi_g + b.ge_g + b.s_g)/3, 0) / data.length).toFixed(2);
-  const avgC = (data.reduce((a, b) => a + (b.gi_c + b.ge_c + b.s_c)/3, 0) / data.length).toFixed(2);
-  const totalD = data.reduce((a, b) => a + b.g_dl + b.c_dl, 0);
-  
-  document.getElementById('metricsGrid').innerHTML = `
-    <div class="metric-card" style="border-left-color: var(--accent)">
-      <div class="metric-label">Avg SLA GRW</div>
-      <div class="metric-value">${avgG}%</div>
-      <div class="metric-sub">Berdasarkan ${data.length} hari</div>
-    </div>
-    <div class="metric-card" style="border-left-color: var(--accent2)">
-      <div class="metric-label">Avg SLA Customer</div>
-      <div class="metric-value">${avgC}%</div>
-      <div class="metric-sub">Pencapaian kurir</div>
-    </div>
-    <div class="metric-card" style="border-left-color: var(--danger)">
-      <div class="metric-label">Total Delay</div>
-      <div class="metric-value">${totalD}</div>
-      <div class="metric-sub">Kasus keterlambatan</div>
-    </div>
+function updateMetrics() {
+  const avg = (arr) => (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(2);
+  const grwAvg = avg(currentData.map(d => (d.gi_g + d.ge_g + d.s_g)/3));
+  const custAvg = avg(currentData.map(d => (d.gi_c + d.ge_c + d.s_c)/3));
+
+  document.getElementById('metricsArea').innerHTML = `
+    <div class="m-card"><div class="m-label">Avg SLA GRW</div><div class="m-value">${grwAvg}%</div></div>
+    <div class="m-card"><div class="m-label">Avg SLA Customer</div><div class="m-value" style="color:var(--accent2)">${custAvg}%</div></div>
+    <div class="m-card"><div class="m-label">Total Record</div><div class="m-value">${currentData.length}</div></div>
   `;
 }
 
-function renderTable(data) {
-  const badge = (v) => {
-    let cls = v >= 99 ? 'badge-ok' : (v >= 97 ? 'badge-warn' : 'badge-bad');
-    return `<span class="badge ${cls}">${v.toFixed(2)}%</span>`;
+function changeView(type, btn) {
+  if(btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  const grwSets = [];
+  const custSets = [];
+
+  const addSet = (target, label, key, color) => {
+    target.push({
+      label: label,
+      data: currentData.map(d => d[key]),
+      borderColor: color,
+      backgroundColor: color + '22',
+      fill: true,
+      tension: 0.3,
+      borderWidth: 2,
+      pointRadius: 2
+    });
   };
-  document.getElementById('tableBody').innerHTML = data.map(d => `
+
+  if(type === 'semua' || type === 'INFORMA') {
+    addSet(grwSets, 'Informa', 'gi_g', COLORS.informa);
+    addSet(custSets, 'Informa', 'gi_c', COLORS.cust_informa);
+  }
+  if(type === 'semua' || type === 'ELEKTRONIK') {
+    addSet(grwSets, 'Elektronik', 'ge_g', COLORS.elektronik);
+    addSet(custSets, 'Elektronik', 'ge_c', COLORS.cust_elek);
+  }
+  if(type === 'semua' || type === 'SELMA') {
+    addSet(grwSets, 'Selma', 's_g', COLORS.selma);
+    addSet(custSets, 'Selma', 's_c', COLORS.cust_selma);
+  }
+
+  initChart('grwChart', 'GRW', grwSets);
+  initChart('custChart', 'CUST', custSets);
+  
+  // Legend
+  const buildLeg = (sets) => sets.map(s => `<div class="leg-item"><div class="dot" style="background:${s.borderColor}"></div>${s.label}</div>`).join('');
+  document.getElementById('grwLegend').innerHTML = buildLeg(grwSets);
+  document.getElementById('custLegend').innerHTML = buildLeg(custSets);
+}
+
+function renderTable() {
+  const b = (v) => `<span class="badge ${v >= 99 ? 'badge-green' : 'badge-red'}">${v.toFixed(2)}%</span>`;
+  document.getElementById('tableBody').innerHTML = currentData.map(d => `
     <tr>
       <td>${d.tgl}</td>
-      <td>${badge(d.gi_g)}</td>
-      <td>${badge(d.ge_g)}</td>
-      <td>${badge(d.s_g)}</td>
-      <td>${badge(d.gi_c)}</td>
-      <td>${badge(d.ge_c)}</td>
-      <td>${badge(d.s_c)}</td>
+      <td>${b(d.gi_g)}</td><td>${b(d.ge_g)}</td><td>${b(d.s_g)}</td>
+      <td>${b(d.gi_c)}</td><td>${b(d.ge_c)}</td><td>${b(d.s_c)}</td>
     </tr>
   `).join('');
 }
 
-function renderAll(data) {
-  currentData = data;
-  updateMetrics(data);
-  renderSlaChart('grwChart', 'GRW', 'semua', data);
-  renderSlaChart('custChart', 'CUST', 'semua', data);
-  renderVolumeChart(data);
-  renderDelayChart(data);
-  renderTable(data);
-}
-
-// Inisialisasi
-renderAll(DATA);
-
-// Fungsi simulasi upload/sheets (untuk demo)
 function loadLocalData(el) {
-  document.querySelectorAll('.source-card').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  renderAll(DATA);
-  document.getElementById('infoText').innerText = "Menampilkan data lokal April 2026.";
+  setActiveCard(el);
+  currentData = JSON.parse(JSON.stringify(LOCAL_DATA));
+  renderAll();
+  updateInfo("Menampilkan data simulasi lokal.", "success");
 }
+
+function setActiveCard(el) {
+  document.querySelectorAll('.card-src').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function handleUpload(e) {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => processCSV(ev.target.result);
+  reader.readAsText(file);
+  updateInfo(`File ${file.name} berhasil diimport`, "success");
+}
+
+// Start
+loadLocalData(document.querySelector('.card-src'));
 </script>
+
 </body>
 </html>
