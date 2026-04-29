@@ -113,20 +113,20 @@
     flex-wrap: wrap;
   }
   .dashboard-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     background: var(--surface);
     border: 1.5px solid var(--border);
     border-radius: var(--radius);
-    padding: 10px 18px;
+    padding: 8px 16px;
     font-size: 12px;
     font-weight: 600;
     color: var(--text2);
     cursor: pointer;
+    transition: all 0.2s;
     font-family: 'Sora', sans-serif;
     letter-spacing: 0.03em;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
   }
   .dashboard-tab:hover {
     border-color: var(--border2);
@@ -136,6 +136,9 @@
     background: var(--accent);
     border-color: var(--accent);
     color: #fff;
+  }
+  .dashboard-tab i {
+    font-size: 14px;
   }
 
   /* Page title */
@@ -384,6 +387,14 @@
   tbody tr:last-child td { border-bottom: none; }
   tbody tr:hover td { background: rgba(255,255,255,0.02); }
 
+  /* Dashboard Content */
+  .dashboard-content {
+    display: none;
+  }
+  .dashboard-content.active {
+    display: block;
+  }
+
   /* Footer */
   .footer {
     text-align: center;
@@ -434,13 +445,6 @@
     to { transform: rotate(360deg); }
   }
 
-  .dashboard-content {
-    display: none;
-  }
-  .dashboard-content.active {
-    display: block;
-  }
-
   a {
     color: var(--accent);
     text-decoration: none;
@@ -464,14 +468,14 @@
 <header class="header">
   <div class="header-brand">
     <div class="brand-dot"></div>
-    <span class="brand-name">Monitoring Dashboard</span>
+    <span class="brand-name">Dashboard Monitor</span>
   </div>
   <div class="header-meta">APRIL 2026 · REAL-TIME DATA</div>
   <div class="live-badge"><div class="live-dot"></div>Live</div>
 </header>
 
 <main class="main">
-  <!-- Dashboard Navigation -->
+  <!-- Dashboard Navigation Tabs -->
   <div class="dashboard-tabs">
     <button class="dashboard-tab active" onclick="switchDashboard('sla', this)">
       <i class="fas fa-chart-line"></i> SLA Pengiriman
@@ -481,7 +485,7 @@
     </button>
   </div>
 
-  <!-- ========== SLA DASHBOARD ========== -->
+  <!-- SLA DASHBOARD -->
   <div class="dashboard-content active" id="sla-dashboard">
     <div class="page-header">
       <h1 class="page-title">Dashboard <span>SLA Pengiriman</span></h1>
@@ -491,17 +495,17 @@
     <div class="data-sources-container">
       <div class="source-card sheets active" onclick="loadGoogleSheets(this)">
         <i class="fas fa-table source-icon"></i>
-        <div class="source-title">Google Sheets SLA</div>
+        <div class="source-title">Google Sheets</div>
         <div class="source-desc">Load data real-time</div>
       </div>
     </div>
     
-    <div class="info-bar default" id="infoBar">
+    <div class="info-bar default" id="slaInfoBar">
       <div class="info-icon"><i class="fas fa-info-circle"></i></div>
       <div class="info-text">Memuat data dari Google Sheets...</div>
     </div>
 
-    <div class="metrics-grid" id="metricsGrid"></div>
+    <div class="metrics-grid" id="slaMetricsGrid"></div>
 
     <div class="tabs">
       <button class="tab-btn active" onclick="setView('semua',this)">Semua</button>
@@ -513,7 +517,6 @@
       <button class="tab-btn" onclick="setView('CUST SELMA',this)">CUST SELMA</button>
     </div>
 
-    <!-- GRW Chart -->
     <div class="chart-card">
       <div class="chart-header">
         <div>
@@ -527,7 +530,6 @@
       </div>
     </div>
 
-    <!-- Customer Chart -->
     <div class="chart-card">
       <div class="chart-header">
         <div>
@@ -590,13 +592,13 @@
               <th>Overall Avg</th>
             </tr>
           </thead>
-          <tbody id="tableBody"></tbody>
+          <tbody id="slaTableBody"></tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- ========== CASE ID DASHBOARD ========== -->
+  <!-- CASE ID DASHBOARD -->
   <div class="dashboard-content" id="case-dashboard">
     <div class="page-header">
       <h1 class="page-title">Dashboard <span>Case ID</span></h1>
@@ -604,54 +606,47 @@
     </div>
 
     <div class="data-sources-container">
-      <div class="source-card sheets active" onclick="loadCaseData(this)">
-        <i class="fas fa-folder source-icon"></i>
+      <div class="source-card sheets active" onclick="loadCaseIdData(this)">
+        <i class="fas fa-folder-open source-icon"></i>
         <div class="source-title">Google Sheets Case</div>
-        <div class="source-desc">Load data real-time</div>
+        <div class="source-desc">Load data case real-time</div>
       </div>
     </div>
-    
-    <div class="info-bar default" id="infoCaseBar">
+
+    <div class="info-bar default" id="caseInfoBar">
       <div class="info-icon"><i class="fas fa-info-circle"></i></div>
-      <div class="info-text">Memuat data dari Google Sheets...</div>
+      <div class="info-text">Memuat data Case dari Google Sheets...</div>
     </div>
 
     <div class="metrics-grid" id="caseMetricsGrid"></div>
 
-    <!-- Status Distribution Chart -->
-    <div class="chart-card">
-      <div class="chart-header">
-        <span class="chart-title">Distribusi Status Case</span>
-        <div class="legend" id="statusLegend"></div>
+    <div class="two-col">
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Distribusi Status Case</span>
+        </div>
+        <div style="position:relative;width:100%;height:280px;">
+          <canvas id="caseStatusChart"></canvas>
+        </div>
       </div>
-      <div style="position:relative;width:100%;height:280px;">
-        <canvas id="statusChart"></canvas>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Tren Case Per Hari</span>
+        </div>
+        <div style="position:relative;width:100%;height:280px;">
+          <canvas id="caseTrendChart"></canvas>
+        </div>
       </div>
     </div>
 
-    <!-- Trend Chart -->
-    <div class="chart-card">
-      <div class="chart-header">
-        <span class="chart-title">Tren Case Per Hari</span>
-        <div class="legend" id="trendLegend"></div>
-      </div>
-      <div style="position:relative;width:100%;height:280px;">
-        <canvas id="trendChart"></canvas>
-      </div>
-    </div>
-
-    <!-- Case Table -->
     <div class="table-card">
       <div class="table-header">
         <span class="chart-title">Data Case Lengkap</span>
       </div>
       <div class="table-wrap">
-        <table>
-          <thead id="caseTableHead">
-            <tr>
-              <th>No</th>
-            </tr>
-          </thead>
+        <table id="caseTable">
+          <thead id="caseTableHead"></thead>
           <tbody id="caseTableBody"></tbody>
         </table>
       </div>
@@ -660,28 +655,15 @@
 </main>
 
 <footer class="footer">
-  MONITORING DASHBOARD · REAL-TIME DATA FROM GOOGLE SHEETS
+  REAL-TIME MONITORING DASHBOARD · DATA FROM GOOGLE SHEETS
 </footer>
 
 <script>
-// Google Sheets URLs
+// ========== URL Google Sheets ==========
 const SHEETS_SLA_URL = 'https://docs.google.com/spreadsheets/d/1DAOcHYS2n8jja_AbYW9A2_ncfmefbMEWZ_OkANtkkT8/export?format=csv&gid=0';
 const SHEETS_CASE_URL = 'https://docs.google.com/spreadsheets/d/1DAOcHYS2n8jja_AbYW9A2_ncfmefbMEWZ_OkANtkkT8/export?format=csv&gid=1022592527';
 
-// ========== DASHBOARD SWITCH ==========
-function switchDashboard(name, el) {
-  document.querySelectorAll('.dashboard-content').forEach(c => c.classList.remove('active'));
-  document.querySelectorAll('.dashboard-tab').forEach(t => t.classList.remove('active'));
-  
-  document.getElementById(name + '-dashboard').classList.add('active');
-  el.classList.add('active');
-  
-  if(name === 'case') {
-    loadCaseData(document.querySelector('#case-dashboard .source-card'));
-  }
-}
-
-// ========== SLA PENGIRIMAN FUNCTIONS ==========
+// ========== UTILITY FUNCTIONS ==========
 function parsePercentage(str) {
   if (!str) return 0;
   const cleaned = str.toString().replace('%', '').replace(/"/g, '').trim();
@@ -699,7 +681,32 @@ function badge(v){
   return `<span class="badge badge-bad">${pct(v)}</span>`;
 }
 
-function renderMetrics(data){
+function setInfo(msg, type, icon = 'info-circle', barId = 'slaInfoBar'){
+  const el = document.getElementById(barId);
+  const timestamp = new Date().toLocaleTimeString('id-ID');
+  el.innerHTML = `
+    <div class="info-icon"><i class="fas fa-${icon}"></i></div>
+    <div class="info-text">${msg} <small style="opacity:0.6;">· ${timestamp}</small></div>
+  `;
+  el.className = `info-bar ${type}`;
+}
+
+function switchDashboard(type, el) {
+  document.querySelectorAll('.dashboard-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.dashboard-content').forEach(c => c.classList.remove('active'));
+  
+  el.classList.add('active');
+  
+  if(type === 'sla') {
+    document.getElementById('sla-dashboard').classList.add('active');
+  } else if(type === 'case') {
+    document.getElementById('case-dashboard').classList.add('active');
+    loadCaseIdData();
+  }
+}
+
+// ========== SLA DASHBOARD FUNCTIONS ==========
+function renderSLAMetrics(data){
   const allGrw = [];
   const allCust = [];
   
@@ -715,7 +722,7 @@ function renderMetrics(data){
   const gMin = Math.min(...allGrw).toFixed(2);
   const cMin = Math.min(...allCust).toFixed(2);
   
-  document.getElementById('metricsGrid').innerHTML = `
+  document.getElementById('slaMetricsGrid').innerHTML = `
     <div class="metric-card blue">
       <div class="metric-label">Rata-rata SLA GRW</div>
       <div class="metric-value">${gAvg}%</div>
@@ -750,11 +757,9 @@ function renderMetrics(data){
 }
 
 let grwChart, custChart, avgChart, distChart;
-
 const GRW_COLS = ['grw_in', 'grw_el', 'grw_sel'];
 const GRW_LABELS = ['INFORMA', 'ELEK', 'SELMA'];
 const GRW_COLORS = ['#4f8ef7', '#9b7fe8', '#e8a34f'];
-
 const CUST_COLS = ['cust_in', 'cust_el', 'cust_sel'];
 const CUST_LABELS = ['INFORMA', 'ELEK', 'SELMA'];
 const CUST_COLORS = ['#34c98e', '#e87fa0', '#6ec97e'];
@@ -810,7 +815,7 @@ function chartOptions(){
   };
 }
 
-function renderSplitCharts(view, data){
+function renderSLASplitCharts(view, data){
   const grwDs = makeLineDatasets(GRW_COLS, GRW_LABELS, GRW_COLORS, data);
   document.getElementById('grwChartTitle').textContent = `Tren SLA GRW — ${view === 'semua' ? 'Semua Kategori' : view}`;
   document.getElementById('grwLegend').innerHTML = grwDs.map(d => 
@@ -924,8 +929,8 @@ function renderDistributionChart(data){
   });
 }
 
-function renderTable(data){
-  document.getElementById('tableBody').innerHTML = data.map(d => {
+function renderSLATable(data){
+  document.getElementById('slaTableBody').innerHTML = data.map(d => {
     const grwAvg = avg3(d.grw_in, d.grw_el, d.grw_sel);
     const custAvg = avg3(d.cust_in, d.cust_el, d.cust_sel);
     const overall = avg2(grwAvg, custAvg);
@@ -944,52 +949,42 @@ function renderTable(data){
   }).join('');
 }
 
-let currentData = [];
+let currentSLAData = [];
 let currentView = 'semua';
 
 function setView(v, el){
   currentView = v;
   document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  renderSplitCharts(v, currentData);
+  renderSLASplitCharts(v, currentSLAData);
 }
 
-function setInfo(msg, type, icon = 'info-circle'){
-  const el = document.getElementById('infoBar');
-  const timestamp = new Date().toLocaleTimeString('id-ID');
-  el.innerHTML = `
-    <div class="info-icon"><i class="fas fa-${icon}"></i></div>
-    <div class="info-text">${msg} <small style="opacity:0.6;">· ${timestamp}</small></div>
-  `;
-  el.className = `info-bar ${type}`;
-}
-
-function renderAll(data){
-  renderMetrics(data);
-  renderSplitCharts(currentView, data);
+function renderAllSLA(data){
+  renderSLAMetrics(data);
+  renderSLASplitCharts(currentView, data);
   renderAverageChart(data);
   renderDistributionChart(data);
-  renderTable(data);
+  renderSLATable(data);
 }
 
 function loadGoogleSheets(el){
-  document.querySelectorAll('#sla-dashboard .source-card').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  setInfo(`Mengambil data dari Google Sheets...`, 'loading', 'spinner');
+  if(el) {
+    document.querySelectorAll('.dashboard-content:first .source-card').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+  setInfo(`Mengambil data dari Google Sheets...`, 'loading', 'spinner', 'slaInfoBar');
   
   fetch(SHEETS_SLA_URL)
     .then(r => r.text())
     .then(csv => {
-      console.log('Raw CSV:', csv);
       const lines = csv.trim().split('\n').filter(line => line.trim());
       
       if(lines.length < 2){
-        setInfo('❌ Sheet kosong atau tidak dapat diakses.', 'error', 'exclamation-circle');
+        setInfo('❌ Sheet kosong atau tidak dapat diakses.', 'error', 'exclamation-circle', 'slaInfoBar');
         return;
       }
       
       const headers = lines[0].split(',').map(h => h.trim().toUpperCase());
-      console.log('Headers:', headers);
       
       const dateIdx = headers.findIndex(h => h.includes('TANGGAL'));
       const grwInIdx = headers.findIndex(h => h.includes('GRW') && h.includes('INFORMA'));
@@ -999,11 +994,8 @@ function loadGoogleSheets(el){
       const custElIdx = headers.findIndex(h => h.includes('CUST') && h.includes('ELEK'));
       const custSelIdx = headers.findIndex(h => h.includes('CUST') && h.includes('SELMA'));
       
-      console.log('Indices:', {dateIdx, grwInIdx, grwElIdx, grwSelIdx, custInIdx, custElIdx, custSelIdx});
-      
       if(grwInIdx === -1 || grwElIdx === -1 || grwSelIdx === -1 || custInIdx === -1 || custElIdx === -1 || custSelIdx === -1){
-        setInfo('❌ Kolom tidak ditemukan. Periksa nama kolom di spreadsheet.', 'error', 'exclamation-circle');
-        console.error('Missing columns!');
+        setInfo('❌ Kolom tidak ditemukan. Periksa nama kolom di spreadsheet.', 'error', 'exclamation-circle', 'slaInfoBar');
         return;
       }
       
@@ -1024,148 +1016,154 @@ function loadGoogleSheets(el){
       }
       
       if(parsed.length === 0){
-        setInfo('❌ Tidak ada data valid.', 'error', 'exclamation-circle');
+        setInfo('❌ Tidak ada data valid.', 'error', 'exclamation-circle', 'slaInfoBar');
         return;
       }
       
-      currentData = parsed;
+      currentSLAData = parsed;
       currentView = 'semua';
       document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-btn')[0].classList.add('active');
-      renderAll(parsed);
-      setInfo(`✅ Google Sheets dimuat: ${parsed.length} baris data`, 'success', 'table');
+      renderAllSLA(parsed);
+      setInfo(`✅ Google Sheets dimuat: ${parsed.length} baris data`, 'success', 'table', 'slaInfoBar');
     })
     .catch(err => {
-      setInfo('❌ Gagal mengambil data. Pastikan spreadsheet bersifat public/dapat diakses.', 'error', 'exclamation-circle');
+      setInfo('❌ Gagal mengambil data. Pastikan spreadsheet bersifat public/dapat diakses.', 'error', 'exclamation-circle', 'slaInfoBar');
       console.error('Error:', err);
     });
 }
 
-// ========== CASE ID FUNCTIONS ==========
-let caseData = [];
-let statusChart, trendChart;
+// ========== CASE ID DASHBOARD FUNCTIONS ==========
+let caseStatusChart, caseTrendChart;
 
 function renderCaseMetrics(data) {
-  const total = data.length;
-  const statuses = {};
+  const totalCase = data.length;
+  const statusCounts = {};
+  const dateCounts = {};
   
   data.forEach(d => {
     const status = d.status || 'Unknown';
-    statuses[status] = (statuses[status] || 0) + 1;
+    statusCounts[status] = (statusCounts[status] || 0) + 1;
+    
+    if(d.tanggal) {
+      dateCounts[d.tanggal] = (dateCounts[d.tanggal] || 0) + 1;
+    }
   });
-  
-  const dominantStatus = Object.keys(statuses).reduce((a, b) => 
-    statuses[a] > statuses[b] ? a : b
+
+  const dominantStatus = Object.keys(statusCounts).reduce((a, b) => 
+    statusCounts[a] > statusCounts[b] ? a : b
   );
+  const dominantCount = statusCounts[dominantStatus];
   
-  const open = statuses['Open'] || statuses['OPEN'] || 0;
-  const closed = statuses['Closed'] || statuses['CLOSED'] || 0;
+  const openCount = statusCounts['Open'] || statusCounts['OPEN'] || statusCounts['open'] || 0;
+  const closedCount = statusCounts['Closed'] || statusCounts['CLOSED'] || statusCounts['closed'] || 0;
   
   document.getElementById('caseMetricsGrid').innerHTML = `
     <div class="metric-card blue">
       <div class="metric-label">Total Case</div>
-      <div class="metric-value">${total}</div>
-      <div class="metric-sub">semua case</div>
+      <div class="metric-value">${totalCase}</div>
+      <div class="metric-sub">Seluruh case</div>
     </div>
     <div class="metric-card green">
       <div class="metric-label">Case Open</div>
-      <div class="metric-value">${open}</div>
-      <div class="metric-sub">sedang berlangsung</div>
-    </div>
-    <div class="metric-card amber">
-      <div class="metric-label">Case Closed</div>
-      <div class="metric-value">${closed}</div>
-      <div class="metric-sub">selesai</div>
+      <div class="metric-value">${openCount}</div>
+      <div class="metric-sub">Masih berlangsung</div>
     </div>
     <div class="metric-card purple">
+      <div class="metric-label">Case Closed</div>
+      <div class="metric-value">${closedCount}</div>
+      <div class="metric-sub">Sudah selesai</div>
+    </div>
+    <div class="metric-card amber">
       <div class="metric-label">Status Dominan</div>
-      <div class="metric-value" style="font-size:16px;">${dominantStatus}</div>
-      <div class="metric-sub">${statuses[dominantStatus]} case</div>
+      <div class="metric-value">${dominantCount}</div>
+      <div class="metric-sub">${dominantStatus}</div>
     </div>
   `;
 }
 
-function renderStatusChart(data) {
-  const statuses = {};
-  const colors = {
-    'Open': '#4f8ef7',
-    'OPEN': '#4f8ef7',
-    'Closed': '#34c98e',
-    'CLOSED': '#34c98e',
+function renderCaseStatusChart(data) {
+  if(caseStatusChart) caseStatusChart.destroy();
+  
+  const statusCounts = {};
+  data.forEach(d => {
+    const status = d.status || 'Unknown';
+    statusCounts[status] = (statusCounts[status] || 0) + 1;
+  });
+  
+  const statusColors = {
+    'Open': '#34c98e',
+    'Closed': '#4f8ef7',
     'Pending': '#f5a623',
+    'In Progress': '#9b7fe8',
+    'OPEN': '#34c98e',
+    'CLOSED': '#4f8ef7',
     'PENDING': '#f5a623'
   };
   
-  data.forEach(d => {
-    const status = d.status || 'Unknown';
-    statuses[status] = (statuses[status] || 0) + 1;
-  });
+  const colors = Object.keys(statusCounts).map(s => statusColors[s] || '#e8a34f');
   
-  const labels = Object.keys(statuses);
-  const values = Object.values(statuses);
-  const bgColors = labels.map(l => colors[l] || '#9b7fe8');
-  
-  document.getElementById('statusLegend').innerHTML = labels.map(l =>
-    `<div class="legend-item"><div class="legend-dot" style="background:${colors[l] || '#9b7fe8'}"></div>${l}: ${statuses[l]}</div>`
-  ).join('');
-  
-  if(statusChart) statusChart.destroy();
-  statusChart = new Chart(document.getElementById('statusChart'), {
+  caseStatusChart = new Chart(document.getElementById('caseStatusChart'), {
     type: 'bar',
     data: {
-      labels: labels,
+      labels: Object.keys(statusCounts),
       datasets: [{
-        data: values,
-        backgroundColor: bgColors,
-        borderColor: '#151820',
+        label: 'Jumlah Case',
+        data: Object.values(statusCounts),
+        backgroundColor: colors,
+        borderColor: colors,
         borderWidth: 1
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      indexAxis: 'y',
       plugins: {
         legend: { display: false }
       },
       scales: {
-        x: {
+        y: {
           ticks: {
-            callback: v => v,
             font: { size: 10 },
             color: '#555a6a'
           },
-          grid: { color: 'rgba(255,255,255,0.04)' }
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          border: { color: 'rgba(255,255,255,0.05)' }
+        },
+        x: {
+          ticks: {
+            font: { size: 9 },
+            color: '#555a6a'
+          },
+          grid: { display: false },
+          border: { color: 'rgba(255,255,255,0.05)' }
         }
       }
     }
   });
 }
 
-function renderTrendChart(data) {
-  const trendByDate = {};
+function renderCaseTrendChart(data) {
+  if(caseTrendChart) caseTrendChart.destroy();
   
+  const dateCounts = {};
   data.forEach(d => {
-    const date = d.tanggal || d.date || 'Unknown';
-    trendByDate[date] = (trendByDate[date] || 0) + 1;
+    if(d.tanggal) {
+      dateCounts[d.tanggal] = (dateCounts[d.tanggal] || 0) + 1;
+    }
   });
   
-  const dates = Object.keys(trendByDate).sort();
-  const counts = dates.map(d => trendByDate[d]);
+  const sortedDates = Object.keys(dateCounts).sort();
   
-  document.getElementById('trendLegend').innerHTML = 
-    `<div class="legend-item"><div class="legend-dot" style="background:#4f8ef7"></div>Jumlah Case</div>`;
-  
-  if(trendChart) trendChart.destroy();
-  trendChart = new Chart(document.getElementById('trendChart'), {
+  caseTrendChart = new Chart(document.getElementById('caseTrendChart'), {
     type: 'line',
     data: {
-      labels: dates,
+      labels: sortedDates,
       datasets: [{
-        label: 'Case Count',
-        data: counts,
-        borderColor: '#4f8ef7',
-        backgroundColor: 'rgba(79,142,247,0.1)',
+        label: 'Case Per Hari',
+        data: sortedDates.map(d => dateCounts[d]),
+        borderColor: '#34c98e',
+        backgroundColor: 'rgba(52,201,142,0.1)',
         borderWidth: 2.5,
         pointRadius: 4,
         fill: true,
@@ -1181,11 +1179,11 @@ function renderTrendChart(data) {
       scales: {
         y: {
           ticks: {
-            callback: v => v,
             font: { size: 10 },
             color: '#555a6a'
           },
-          grid: { color: 'rgba(255,255,255,0.04)' }
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          border: { color: 'rgba(255,255,255,0.05)' }
         },
         x: {
           ticks: {
@@ -1194,65 +1192,46 @@ function renderTrendChart(data) {
             autoSkip: false,
             color: '#555a6a'
           },
-          grid: { display: false }
+          grid: { display: false },
+          border: { color: 'rgba(255,255,255,0.05)' }
         }
       }
     }
   });
 }
 
-function renderCaseTable(data) {
-  if(data.length === 0) {
-    document.getElementById('caseTableBody').innerHTML = '<tr><td colspan="100">Tidak ada data</td></tr>';
-    return;
-  }
+function renderCaseTable(data, headers) {
+  // Generate table headers dynamically
+  const headRow = headers.map(h => `<th>${h.toUpperCase()}</th>`).join('');
+  document.getElementById('caseTableHead').innerHTML = `<tr>${headRow}</tr>`;
   
-  // Get all unique keys from all objects
-  const allKeys = new Set();
-  data.forEach(row => {
-    Object.keys(row).forEach(key => allKeys.add(key));
-  });
-  const keys = Array.from(allKeys);
+  // Generate table body
+  const bodyRows = data.map(row => {
+    const cells = headers.map(h => {
+      const value = row[h] || '-';
+      return `<td>${value}</td>`;
+    }).join('');
+    return `<tr>${cells}</tr>`;
+  }).join('');
   
-  // Update table header
-  const thead = document.getElementById('caseTableHead');
-  thead.innerHTML = '<tr>' + keys.map(k => `<th>${k.toUpperCase()}</th>`).join('') + '</tr>';
-  
-  // Render table body
-  const tbody = document.getElementById('caseTableBody');
-  tbody.innerHTML = data.map((row, idx) => 
-    '<tr>' + keys.map(k => `<td>${row[k] || '-'}</td>`).join('') + '</tr>'
-  ).join('');
+  document.getElementById('caseTableBody').innerHTML = bodyRows;
 }
 
-function setInfoCase(msg, type, icon = 'info-circle'){
-  const el = document.getElementById('infoCaseBar');
-  const timestamp = new Date().toLocaleTimeString('id-ID');
-  el.innerHTML = `
-    <div class="info-icon"><i class="fas fa-${icon}"></i></div>
-    <div class="info-text">${msg} <small style="opacity:0.6;">· ${timestamp}</small></div>
-  `;
-  el.className = `info-bar ${type}`;
-}
-
-function loadCaseData(el) {
-  document.querySelectorAll('#case-dashboard .source-card').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  setInfoCase(`Mengambil data Case dari Google Sheets...`, 'loading', 'spinner');
+function loadCaseIdData() {
+  setInfo(`Mengambil data Case dari Google Sheets...`, 'loading', 'spinner', 'caseInfoBar');
   
   fetch(SHEETS_CASE_URL)
     .then(r => r.text())
     .then(csv => {
-      console.log('Raw Case CSV:', csv);
       const lines = csv.trim().split('\n').filter(line => line.trim());
       
       if(lines.length < 2){
-        setInfoCase('❌ Sheet kosong atau tidak dapat diakses.', 'error', 'exclamation-circle');
+        setInfo('❌ Sheet Case kosong atau tidak dapat diakses.', 'error', 'exclamation-circle', 'caseInfoBar');
         return;
       }
       
       const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-      console.log('Case Headers:', headers);
+      console.log('Headers:', headers);
       
       const parsed = [];
       for(let i = 1; i < lines.length; i++){
@@ -1261,30 +1240,32 @@ function loadCaseData(el) {
         
         const row = {};
         headers.forEach((header, idx) => {
-          row[header] = cols[idx] || '';
+          row[header] = cols[idx] || '-';
         });
         parsed.push(row);
       }
       
       if(parsed.length === 0){
-        setInfoCase('❌ Tidak ada data valid.', 'error', 'exclamation-circle');
+        setInfo('❌ Tidak ada data case valid.', 'error', 'exclamation-circle', 'caseInfoBar');
         return;
       }
       
-      caseData = parsed;
+      console.log('Parsed data:', parsed);
+      
       renderCaseMetrics(parsed);
-      renderStatusChart(parsed);
-      renderTrendChart(parsed);
-      renderCaseTable(parsed);
-      setInfoCase(`✅ Google Sheets dimuat: ${parsed.length} baris data Case`, 'success', 'table');
+      renderCaseStatusChart(parsed);
+      renderCaseTrendChart(parsed);
+      renderCaseTable(parsed, headers);
+      
+      setInfo(`✅ Case Data dimuat: ${parsed.length} baris data`, 'success', 'folder-open', 'caseInfoBar');
     })
     .catch(err => {
-      setInfoCase('❌ Gagal mengambil data. Pastikan spreadsheet bersifat public/dapat diakses.', 'error', 'exclamation-circle');
+      setInfo('❌ Gagal mengambil data Case. Pastikan spreadsheet dapat diakses.', 'error', 'exclamation-circle', 'caseInfoBar');
       console.error('Error:', err);
     });
 }
 
-// Load otomatis saat halaman dibuka
+// ========== AUTO LOAD ==========
 window.addEventListener('load', () => {
   loadGoogleSheets(document.querySelector('#sla-dashboard .source-card'));
 });
