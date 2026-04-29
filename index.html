@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard SLA & Case ID</title>
+<title>Dashboard SLA Pengiriman</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -104,42 +104,6 @@
 
   /* Layout */
   .main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-
-  /* Dashboard Tabs */
-  .dashboard-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-  }
-  .dashboard-tab {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 8px 16px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text2);
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: 'Sora', sans-serif;
-    letter-spacing: 0.03em;
-  }
-  .dashboard-tab:hover {
-    border-color: var(--border2);
-    color: var(--text);
-  }
-  .dashboard-tab.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
-  .dashboard-tab i {
-    font-size: 14px;
-  }
 
   /* Page title */
   .page-header { margin-bottom: 2rem; }
@@ -387,14 +351,6 @@
   tbody tr:last-child td { border-bottom: none; }
   tbody tr:hover td { background: rgba(255,255,255,0.02); }
 
-  /* Dashboard Content */
-  .dashboard-content {
-    display: none;
-  }
-  .dashboard-content.active {
-    display: block;
-  }
-
   /* Footer */
   .footer {
     text-align: center;
@@ -468,202 +424,134 @@
 <header class="header">
   <div class="header-brand">
     <div class="brand-dot"></div>
-    <span class="brand-name">Dashboard Monitor</span>
+    <span class="brand-name">SLA Monitor</span>
   </div>
-  <div class="header-meta">APRIL 2026 · REAL-TIME DATA</div>
+  <div class="header-meta">APRIL 2026 · GRW & CUSTOMER</div>
   <div class="live-badge"><div class="live-dot"></div>Live</div>
 </header>
 
 <main class="main">
-  <!-- Dashboard Navigation Tabs -->
-  <div class="dashboard-tabs">
-    <button class="dashboard-tab active" onclick="switchDashboard('sla', this)">
-      <i class="fas fa-chart-line"></i> SLA Pengiriman
-    </button>
-    <button class="dashboard-tab" onclick="switchDashboard('case', this)">
-      <i class="fas fa-ticket-alt"></i> Case ID
-    </button>
+  <div class="page-header">
+    <h1 class="page-title">Dashboard <span>SLA Pengiriman</span></h1>
+    <p class="page-desc">Monitoring real-time dari Google Sheets</p>
   </div>
 
-  <!-- SLA DASHBOARD -->
-  <div class="dashboard-content active" id="sla-dashboard">
-    <div class="page-header">
-      <h1 class="page-title">Dashboard <span>SLA Pengiriman</span></h1>
-      <p class="page-desc">Monitoring real-time dari Google Sheets</p>
+  <div class="data-sources-container">
+    <div class="source-card sheets active" onclick="loadGoogleSheets(this)">
+      <i class="fas fa-table source-icon"></i>
+      <div class="source-title">Google Sheets</div>
+      <div class="source-desc">Load data real-time</div>
     </div>
+  </div>
+  
+  <div class="info-bar default" id="infoBar">
+    <div class="info-icon"><i class="fas fa-info-circle"></i></div>
+    <div class="info-text">Memuat data dari Google Sheets...</div>
+  </div>
 
-    <div class="data-sources-container">
-      <div class="source-card sheets active" onclick="loadGoogleSheets(this)">
-        <i class="fas fa-table source-icon"></i>
-        <div class="source-title">Google Sheets</div>
-        <div class="source-desc">Load data real-time</div>
+  <div class="metrics-grid" id="metricsGrid"></div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="setView('semua',this)">Semua</button>
+    <button class="tab-btn" onclick="setView('GRW INFORMA',this)">GRW INFORMA</button>
+    <button class="tab-btn" onclick="setView('GRW ELEK',this)">GRW ELEK</button>
+    <button class="tab-btn" onclick="setView('GRW SELMA',this)">GRW SELMA</button>
+    <button class="tab-btn" onclick="setView('CUST INFORMA',this)">CUST INFORMA</button>
+    <button class="tab-btn" onclick="setView('CUST ELEK',this)">CUST ELEK</button>
+    <button class="tab-btn" onclick="setView('CUST SELMA',this)">CUST SELMA</button>
+  </div>
+
+  <!-- GRW Chart -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <div>
+        <span class="chart-title" id="grwChartTitle">Tren SLA GRW</span>
+        <div style="margin-top:4px;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">TYPE: GRW</div>
       </div>
+      <div class="legend" id="grwLegend"></div>
     </div>
-    
-    <div class="info-bar default" id="slaInfoBar">
-      <div class="info-icon"><i class="fas fa-info-circle"></i></div>
-      <div class="info-text">Memuat data dari Google Sheets...</div>
+    <div style="position:relative;width:100%;height:280px;">
+      <canvas id="grwChart"></canvas>
     </div>
+  </div>
 
-    <div class="metrics-grid" id="slaMetricsGrid"></div>
+  <!-- Customer Chart -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <div>
+        <span class="chart-title" id="custChartTitle">Tren SLA Customer</span>
+        <div style="margin-top:4px;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">TYPE: CUSTOMER</div>
+      </div>
+      <div class="legend" id="custLegend"></div>
+    </div>
+    <div style="position:relative;width:100%;height:280px;">
+      <canvas id="custChart"></canvas>
+    </div>
+  </div>
 
-    <div class="tabs">
-      <button class="tab-btn active" onclick="setView('semua',this)">Semua</button>
-      <button class="tab-btn" onclick="setView('GRW INFORMA',this)">GRW INFORMA</button>
-      <button class="tab-btn" onclick="setView('GRW ELEK',this)">GRW ELEK</button>
-      <button class="tab-btn" onclick="setView('GRW SELMA',this)">GRW SELMA</button>
-      <button class="tab-btn" onclick="setView('CUST INFORMA',this)">CUST INFORMA</button>
-      <button class="tab-btn" onclick="setView('CUST ELEK',this)">CUST ELEK</button>
-      <button class="tab-btn" onclick="setView('CUST SELMA',this)">CUST SELMA</button>
+  <div class="two-col">
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">Perbandingan GRW vs Customer</span>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#4f8ef7"></div>GRW Avg</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#34c98e"></div>Customer Avg</div>
+        </div>
+      </div>
+      <div style="position:relative;width:100%;height:240px;">
+        <canvas id="avgChart"></canvas>
+      </div>
     </div>
 
     <div class="chart-card">
       <div class="chart-header">
-        <div>
-          <span class="chart-title" id="grwChartTitle">Tren SLA GRW</span>
-          <div style="margin-top:4px;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">TYPE: GRW</div>
-        </div>
-        <div class="legend" id="grwLegend"></div>
+        <span class="chart-title">Distribusi SLA Kategori</span>
       </div>
-      <div style="position:relative;width:100%;height:280px;">
-        <canvas id="grwChart"></canvas>
-      </div>
-    </div>
-
-    <div class="chart-card">
-      <div class="chart-header">
-        <div>
-          <span class="chart-title" id="custChartTitle">Tren SLA Customer</span>
-          <div style="margin-top:4px;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">TYPE: CUSTOMER</div>
-        </div>
-        <div class="legend" id="custLegend"></div>
-      </div>
-      <div style="position:relative;width:100%;height:280px;">
-        <canvas id="custChart"></canvas>
-      </div>
-    </div>
-
-    <div class="two-col">
-      <div class="chart-card">
-        <div class="chart-header">
-          <span class="chart-title">Perbandingan GRW vs Customer</span>
-          <div class="legend">
-            <div class="legend-item"><div class="legend-dot" style="background:#4f8ef7"></div>GRW Avg</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#34c98e"></div>Customer Avg</div>
-          </div>
-        </div>
-        <div style="position:relative;width:100%;height:240px;">
-          <canvas id="avgChart"></canvas>
-        </div>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-header">
-          <span class="chart-title">Distribusi SLA Kategori</span>
-        </div>
-        <div style="position:relative;width:100%;height:240px;">
-          <canvas id="distChart"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <div class="table-card">
-      <div class="table-header">
-        <span class="chart-title">Data SLA Harian Lengkap</span>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <span class="badge badge-ok">≥90% Tercapai</span>
-          <span class="badge badge-warn">70–89% Cukup</span>
-          <span class="badge badge-bad">&lt;70% Perlu Tindakan</span>
-        </div>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Tanggal</th>
-              <th>GRW INFORMA</th>
-              <th>GRW ELEK</th>
-              <th>GRW SELMA</th>
-              <th>CUST INFORMA</th>
-              <th>CUST ELEK</th>
-              <th>CUST SELMA</th>
-              <th>Avg GRW</th>
-              <th>Avg CUST</th>
-              <th>Overall Avg</th>
-            </tr>
-          </thead>
-          <tbody id="slaTableBody"></tbody>
-        </table>
+      <div style="position:relative;width:100%;height:240px;">
+        <canvas id="distChart"></canvas>
       </div>
     </div>
   </div>
 
-  <!-- CASE ID DASHBOARD -->
-  <div class="dashboard-content" id="case-dashboard">
-    <div class="page-header">
-      <h1 class="page-title">Dashboard <span>Case ID</span></h1>
-      <p class="page-desc">Monitoring real-time Case dari Google Sheets</p>
-    </div>
-
-    <div class="data-sources-container">
-      <div class="source-card sheets active" onclick="loadCaseIdData(this)">
-        <i class="fas fa-folder-open source-icon"></i>
-        <div class="source-title">Google Sheets Case</div>
-        <div class="source-desc">Load data case real-time</div>
+  <div class="table-card">
+    <div class="table-header">
+      <span class="chart-title">Data SLA Harian Lengkap</span>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <span class="badge badge-ok">≥90% Tercapai</span>
+        <span class="badge badge-warn">70–89% Cukup</span>
+        <span class="badge badge-bad">&lt;70% Perlu Tindakan</span>
       </div>
     </div>
-
-    <div class="info-bar default" id="caseInfoBar">
-      <div class="info-icon"><i class="fas fa-info-circle"></i></div>
-      <div class="info-text">Memuat data Case dari Google Sheets...</div>
-    </div>
-
-    <div class="metrics-grid" id="caseMetricsGrid"></div>
-
-    <div class="two-col">
-      <div class="chart-card">
-        <div class="chart-header">
-          <span class="chart-title">Distribusi Status Case</span>
-        </div>
-        <div style="position:relative;width:100%;height:280px;">
-          <canvas id="caseStatusChart"></canvas>
-        </div>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-header">
-          <span class="chart-title">Tren Case Per Hari</span>
-        </div>
-        <div style="position:relative;width:100%;height:280px;">
-          <canvas id="caseTrendChart"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <div class="table-card">
-      <div class="table-header">
-        <span class="chart-title">Data Case Lengkap</span>
-      </div>
-      <div class="table-wrap">
-        <table id="caseTable">
-          <thead id="caseTableHead"></thead>
-          <tbody id="caseTableBody"></tbody>
-        </table>
-      </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>GRW INFORMA</th>
+            <th>GRW ELEK</th>
+            <th>GRW SELMA</th>
+            <th>CUST INFORMA</th>
+            <th>CUST ELEK</th>
+            <th>CUST SELMA</th>
+            <th>Avg GRW</th>
+            <th>Avg CUST</th>
+            <th>Overall Avg</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
     </div>
   </div>
 </main>
 
 <footer class="footer">
-  REAL-TIME MONITORING DASHBOARD · DATA FROM GOOGLE SHEETS
+  SLA MONITORING DASHBOARD · REAL-TIME DATA FROM GOOGLE SHEETS
 </footer>
 
 <script>
-// ========== URL Google Sheets ==========
-const SHEETS_SLA_URL = 'https://docs.google.com/spreadsheets/d/1DAOcHYS2n8jja_AbYW9A2_ncfmefbMEWZ_OkANtkkT8/export?format=csv&gid=0';
-const SHEETS_CASE_URL = 'https://docs.google.com/spreadsheets/d/1DAOcHYS2n8jja_AbYW9A2_ncfmefbMEWZ_OkANtkkT8/export?format=csv&gid=1022592527';
+// URL Google Sheets (disesuaikan dengan link Anda)
+const SHEETS_EXPORT_URL = 'https://docs.google.com/spreadsheets/d/1DAOcHYS2n8jja_AbYW9A2_ncfmefbMEWZ_OkANtkkT8/export?format=csv&gid=0';
 
-// ========== UTILITY FUNCTIONS ==========
 function parsePercentage(str) {
   if (!str) return 0;
   const cleaned = str.toString().replace('%', '').replace(/"/g, '').trim();
@@ -681,32 +569,7 @@ function badge(v){
   return `<span class="badge badge-bad">${pct(v)}</span>`;
 }
 
-function setInfo(msg, type, icon = 'info-circle', barId = 'slaInfoBar'){
-  const el = document.getElementById(barId);
-  const timestamp = new Date().toLocaleTimeString('id-ID');
-  el.innerHTML = `
-    <div class="info-icon"><i class="fas fa-${icon}"></i></div>
-    <div class="info-text">${msg} <small style="opacity:0.6;">· ${timestamp}</small></div>
-  `;
-  el.className = `info-bar ${type}`;
-}
-
-function switchDashboard(type, el) {
-  document.querySelectorAll('.dashboard-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.dashboard-content').forEach(c => c.classList.remove('active'));
-  
-  el.classList.add('active');
-  
-  if(type === 'sla') {
-    document.getElementById('sla-dashboard').classList.add('active');
-  } else if(type === 'case') {
-    document.getElementById('case-dashboard').classList.add('active');
-    loadCaseIdData();
-  }
-}
-
-// ========== SLA DASHBOARD FUNCTIONS ==========
-function renderSLAMetrics(data){
+function renderMetrics(data){
   const allGrw = [];
   const allCust = [];
   
@@ -722,7 +585,7 @@ function renderSLAMetrics(data){
   const gMin = Math.min(...allGrw).toFixed(2);
   const cMin = Math.min(...allCust).toFixed(2);
   
-  document.getElementById('slaMetricsGrid').innerHTML = `
+  document.getElementById('metricsGrid').innerHTML = `
     <div class="metric-card blue">
       <div class="metric-label">Rata-rata SLA GRW</div>
       <div class="metric-value">${gAvg}%</div>
@@ -757,9 +620,11 @@ function renderSLAMetrics(data){
 }
 
 let grwChart, custChart, avgChart, distChart;
+
 const GRW_COLS = ['grw_in', 'grw_el', 'grw_sel'];
 const GRW_LABELS = ['INFORMA', 'ELEK', 'SELMA'];
 const GRW_COLORS = ['#4f8ef7', '#9b7fe8', '#e8a34f'];
+
 const CUST_COLS = ['cust_in', 'cust_el', 'cust_sel'];
 const CUST_LABELS = ['INFORMA', 'ELEK', 'SELMA'];
 const CUST_COLORS = ['#34c98e', '#e87fa0', '#6ec97e'];
@@ -815,7 +680,8 @@ function chartOptions(){
   };
 }
 
-function renderSLASplitCharts(view, data){
+function renderSplitCharts(view, data){
+  // GRW Chart
   const grwDs = makeLineDatasets(GRW_COLS, GRW_LABELS, GRW_COLORS, data);
   document.getElementById('grwChartTitle').textContent = `Tren SLA GRW — ${view === 'semua' ? 'Semua Kategori' : view}`;
   document.getElementById('grwLegend').innerHTML = grwDs.map(d => 
@@ -832,6 +698,7 @@ function renderSLASplitCharts(view, data){
     options: chartOptions()
   });
 
+  // Customer Chart
   const custDs = makeLineDatasets(CUST_COLS, CUST_LABELS, CUST_COLORS, data);
   document.getElementById('custChartTitle').textContent = `Tren SLA Customer — ${view === 'semua' ? 'Semua Kategori' : view}`;
   document.getElementById('custLegend').innerHTML = custDs.map(d =>
@@ -929,8 +796,8 @@ function renderDistributionChart(data){
   });
 }
 
-function renderSLATable(data){
-  document.getElementById('slaTableBody').innerHTML = data.map(d => {
+function renderTable(data){
+  document.getElementById('tableBody').innerHTML = data.map(d => {
     const grwAvg = avg3(d.grw_in, d.grw_el, d.grw_sel);
     const custAvg = avg3(d.cust_in, d.cust_el, d.cust_sel);
     const overall = avg2(grwAvg, custAvg);
@@ -949,43 +816,54 @@ function renderSLATable(data){
   }).join('');
 }
 
-let currentSLAData = [];
+let currentData = [];
 let currentView = 'semua';
 
 function setView(v, el){
   currentView = v;
   document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  renderSLASplitCharts(v, currentSLAData);
+  renderSplitCharts(v, currentData);
 }
 
-function renderAllSLA(data){
-  renderSLAMetrics(data);
-  renderSLASplitCharts(currentView, data);
+function setInfo(msg, type, icon = 'info-circle'){
+  const el = document.getElementById('infoBar');
+  const timestamp = new Date().toLocaleTimeString('id-ID');
+  el.innerHTML = `
+    <div class="info-icon"><i class="fas fa-${icon}"></i></div>
+    <div class="info-text">${msg} <small style="opacity:0.6;">· ${timestamp}</small></div>
+  `;
+  el.className = `info-bar ${type}`;
+}
+
+function renderAll(data){
+  renderMetrics(data);
+  renderSplitCharts(currentView, data);
   renderAverageChart(data);
   renderDistributionChart(data);
-  renderSLATable(data);
+  renderTable(data);
 }
 
 function loadGoogleSheets(el){
-  if(el) {
-    document.querySelectorAll('.dashboard-content:first .source-card').forEach(c => c.classList.remove('active'));
-    el.classList.add('active');
-  }
-  setInfo(`Mengambil data dari Google Sheets...`, 'loading', 'spinner', 'slaInfoBar');
+  document.querySelectorAll('.source-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  setInfo(`Mengambil data dari Google Sheets...`, 'loading', 'spinner');
   
-  fetch(SHEETS_SLA_URL)
+  fetch(SHEETS_EXPORT_URL)
     .then(r => r.text())
     .then(csv => {
+      console.log('Raw CSV:', csv);
       const lines = csv.trim().split('\n').filter(line => line.trim());
       
       if(lines.length < 2){
-        setInfo('❌ Sheet kosong atau tidak dapat diakses.', 'error', 'exclamation-circle', 'slaInfoBar');
+        setInfo('❌ Sheet kosong atau tidak dapat diakses.', 'error', 'exclamation-circle');
         return;
       }
       
       const headers = lines[0].split(',').map(h => h.trim().toUpperCase());
+      console.log('Headers:', headers);
       
+      // Cari index sesuai header sheet Anda
       const dateIdx = headers.findIndex(h => h.includes('TANGGAL'));
       const grwInIdx = headers.findIndex(h => h.includes('GRW') && h.includes('INFORMA'));
       const grwElIdx = headers.findIndex(h => h.includes('GRW') && h.includes('ELEK'));
@@ -994,8 +872,11 @@ function loadGoogleSheets(el){
       const custElIdx = headers.findIndex(h => h.includes('CUST') && h.includes('ELEK'));
       const custSelIdx = headers.findIndex(h => h.includes('CUST') && h.includes('SELMA'));
       
+      console.log('Indices:', {dateIdx, grwInIdx, grwElIdx, grwSelIdx, custInIdx, custElIdx, custSelIdx});
+      
       if(grwInIdx === -1 || grwElIdx === -1 || grwSelIdx === -1 || custInIdx === -1 || custElIdx === -1 || custSelIdx === -1){
-        setInfo('❌ Kolom tidak ditemukan. Periksa nama kolom di spreadsheet.', 'error', 'exclamation-circle', 'slaInfoBar');
+        setInfo('❌ Kolom tidak ditemukan. Periksa nama kolom di spreadsheet.', 'error', 'exclamation-circle');
+        console.error('Missing columns!');
         return;
       }
       
@@ -1016,258 +897,26 @@ function loadGoogleSheets(el){
       }
       
       if(parsed.length === 0){
-        setInfo('❌ Tidak ada data valid.', 'error', 'exclamation-circle', 'slaInfoBar');
+        setInfo('❌ Tidak ada data valid.', 'error', 'exclamation-circle');
         return;
       }
       
-      currentSLAData = parsed;
+      currentData = parsed;
       currentView = 'semua';
       document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-btn')[0].classList.add('active');
-      renderAllSLA(parsed);
-      setInfo(`✅ Google Sheets dimuat: ${parsed.length} baris data`, 'success', 'table', 'slaInfoBar');
+      renderAll(parsed);
+      setInfo(`✅ Google Sheets dimuat: ${parsed.length} baris data`, 'success', 'table');
     })
     .catch(err => {
-      setInfo('❌ Gagal mengambil data. Pastikan spreadsheet bersifat public/dapat diakses.', 'error', 'exclamation-circle', 'slaInfoBar');
+      setInfo('❌ Gagal mengambil data. Pastikan spreadsheet bersifat public/dapat diakses.', 'error', 'exclamation-circle');
       console.error('Error:', err);
     });
 }
 
-// ========== CASE ID DASHBOARD FUNCTIONS ==========
-let caseStatusChart, caseTrendChart;
-
-function renderCaseMetrics(data) {
-  const totalCase = data.length;
-  const statusCounts = {};
-  const dateCounts = {};
-  
-  data.forEach(d => {
-    const status = d.status || 'Unknown';
-    statusCounts[status] = (statusCounts[status] || 0) + 1;
-    
-    if(d.tanggal) {
-      dateCounts[d.tanggal] = (dateCounts[d.tanggal] || 0) + 1;
-    }
-  });
-
-  const dominantStatus = Object.keys(statusCounts).reduce((a, b) => 
-    statusCounts[a] > statusCounts[b] ? a : b
-  );
-  const dominantCount = statusCounts[dominantStatus];
-  
-  const openCount = statusCounts['Open'] || statusCounts['OPEN'] || statusCounts['open'] || 0;
-  const closedCount = statusCounts['Closed'] || statusCounts['CLOSED'] || statusCounts['closed'] || 0;
-  
-  document.getElementById('caseMetricsGrid').innerHTML = `
-    <div class="metric-card blue">
-      <div class="metric-label">Total Case</div>
-      <div class="metric-value">${totalCase}</div>
-      <div class="metric-sub">Seluruh case</div>
-    </div>
-    <div class="metric-card green">
-      <div class="metric-label">Case Open</div>
-      <div class="metric-value">${openCount}</div>
-      <div class="metric-sub">Masih berlangsung</div>
-    </div>
-    <div class="metric-card purple">
-      <div class="metric-label">Case Closed</div>
-      <div class="metric-value">${closedCount}</div>
-      <div class="metric-sub">Sudah selesai</div>
-    </div>
-    <div class="metric-card amber">
-      <div class="metric-label">Status Dominan</div>
-      <div class="metric-value">${dominantCount}</div>
-      <div class="metric-sub">${dominantStatus}</div>
-    </div>
-  `;
-}
-
-function renderCaseStatusChart(data) {
-  if(caseStatusChart) caseStatusChart.destroy();
-  
-  const statusCounts = {};
-  data.forEach(d => {
-    const status = d.status || 'Unknown';
-    statusCounts[status] = (statusCounts[status] || 0) + 1;
-  });
-  
-  const statusColors = {
-    'Open': '#34c98e',
-    'Closed': '#4f8ef7',
-    'Pending': '#f5a623',
-    'In Progress': '#9b7fe8',
-    'OPEN': '#34c98e',
-    'CLOSED': '#4f8ef7',
-    'PENDING': '#f5a623'
-  };
-  
-  const colors = Object.keys(statusCounts).map(s => statusColors[s] || '#e8a34f');
-  
-  caseStatusChart = new Chart(document.getElementById('caseStatusChart'), {
-    type: 'bar',
-    data: {
-      labels: Object.keys(statusCounts),
-      datasets: [{
-        label: 'Jumlah Case',
-        data: Object.values(statusCounts),
-        backgroundColor: colors,
-        borderColor: colors,
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false }
-      },
-      scales: {
-        y: {
-          ticks: {
-            font: { size: 10 },
-            color: '#555a6a'
-          },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          border: { color: 'rgba(255,255,255,0.05)' }
-        },
-        x: {
-          ticks: {
-            font: { size: 9 },
-            color: '#555a6a'
-          },
-          grid: { display: false },
-          border: { color: 'rgba(255,255,255,0.05)' }
-        }
-      }
-    }
-  });
-}
-
-function renderCaseTrendChart(data) {
-  if(caseTrendChart) caseTrendChart.destroy();
-  
-  const dateCounts = {};
-  data.forEach(d => {
-    if(d.tanggal) {
-      dateCounts[d.tanggal] = (dateCounts[d.tanggal] || 0) + 1;
-    }
-  });
-  
-  const sortedDates = Object.keys(dateCounts).sort();
-  
-  caseTrendChart = new Chart(document.getElementById('caseTrendChart'), {
-    type: 'line',
-    data: {
-      labels: sortedDates,
-      datasets: [{
-        label: 'Case Per Hari',
-        data: sortedDates.map(d => dateCounts[d]),
-        borderColor: '#34c98e',
-        backgroundColor: 'rgba(52,201,142,0.1)',
-        borderWidth: 2.5,
-        pointRadius: 4,
-        fill: true,
-        tension: 0.3
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false }
-      },
-      scales: {
-        y: {
-          ticks: {
-            font: { size: 10 },
-            color: '#555a6a'
-          },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          border: { color: 'rgba(255,255,255,0.05)' }
-        },
-        x: {
-          ticks: {
-            font: { size: 9 },
-            maxRotation: 45,
-            autoSkip: false,
-            color: '#555a6a'
-          },
-          grid: { display: false },
-          border: { color: 'rgba(255,255,255,0.05)' }
-        }
-      }
-    }
-  });
-}
-
-function renderCaseTable(data, headers) {
-  // Generate table headers dynamically
-  const headRow = headers.map(h => `<th>${h.toUpperCase()}</th>`).join('');
-  document.getElementById('caseTableHead').innerHTML = `<tr>${headRow}</tr>`;
-  
-  // Generate table body
-  const bodyRows = data.map(row => {
-    const cells = headers.map(h => {
-      const value = row[h] || '-';
-      return `<td>${value}</td>`;
-    }).join('');
-    return `<tr>${cells}</tr>`;
-  }).join('');
-  
-  document.getElementById('caseTableBody').innerHTML = bodyRows;
-}
-
-function loadCaseIdData() {
-  setInfo(`Mengambil data Case dari Google Sheets...`, 'loading', 'spinner', 'caseInfoBar');
-  
-  fetch(SHEETS_CASE_URL)
-    .then(r => r.text())
-    .then(csv => {
-      const lines = csv.trim().split('\n').filter(line => line.trim());
-      
-      if(lines.length < 2){
-        setInfo('❌ Sheet Case kosong atau tidak dapat diakses.', 'error', 'exclamation-circle', 'caseInfoBar');
-        return;
-      }
-      
-      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-      console.log('Headers:', headers);
-      
-      const parsed = [];
-      for(let i = 1; i < lines.length; i++){
-        const cols = lines[i].split(',').map(c => c.trim());
-        if(!cols[0]) continue;
-        
-        const row = {};
-        headers.forEach((header, idx) => {
-          row[header] = cols[idx] || '-';
-        });
-        parsed.push(row);
-      }
-      
-      if(parsed.length === 0){
-        setInfo('❌ Tidak ada data case valid.', 'error', 'exclamation-circle', 'caseInfoBar');
-        return;
-      }
-      
-      console.log('Parsed data:', parsed);
-      
-      renderCaseMetrics(parsed);
-      renderCaseStatusChart(parsed);
-      renderCaseTrendChart(parsed);
-      renderCaseTable(parsed, headers);
-      
-      setInfo(`✅ Case Data dimuat: ${parsed.length} baris data`, 'success', 'folder-open', 'caseInfoBar');
-    })
-    .catch(err => {
-      setInfo('❌ Gagal mengambil data Case. Pastikan spreadsheet dapat diakses.', 'error', 'exclamation-circle', 'caseInfoBar');
-      console.error('Error:', err);
-    });
-}
-
-// ========== AUTO LOAD ==========
+// Load otomatis saat halaman dibuka
 window.addEventListener('load', () => {
-  loadGoogleSheets(document.querySelector('#sla-dashboard .source-card'));
+  loadGoogleSheets(document.querySelector('.source-card'));
 });
 </script>
 </body>
